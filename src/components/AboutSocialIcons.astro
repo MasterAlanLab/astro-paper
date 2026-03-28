@@ -4,10 +4,10 @@ import LinkButton from "./LinkButton.astro";
 ---
 
 {
-  AUTHOR_LINKS.length > 0 && (
-    <div class="flex items-center gap-3">
-      <span class="italic">关注作者：</span>
-      <div class="flex flex-wrap items-center gap-3">
+  AUTHOR_LINKS.some(social => social.icon && social.showInMinimalList) && (
+    <div class="mt-6 flex items-center gap-3">
+      <span class="text-sm text-muted-foreground">关注我：</span>
+      <div class="flex items-center gap-3">
         {AUTHOR_LINKS.filter(social => social.icon && social.showInMinimalList).map(social => (
           <LinkButton
             href={social.href}

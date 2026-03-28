@@ -1,0 +1,48 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import Breadcrumb from "@/components/Breadcrumb.astro";
+import AboutSocialIcons from "@/components/AboutSocialIcons.astro";
+import { SITE } from "@/config";
+---
+
+<Layout title={`关于 | ${SITE.title}`}>
+  <Header />
+  <Breadcrumb />
+  <main id="main-content" class="app-layout">
+    <section id="about" class="app-prose mb-28 max-w-app prose-img:border-0">
+      <h1 class="text-2xl tracking-wider sm:text-3xl">关于</h1>
+
+      <p>
+        艾伦技术工坊（MasterAlanLab）是艾伦持续更新的技术内容阵地，这个博客页更像一份长期整理中的工作手册：记录值得复用的脚本、踩过坑后的部署笔记，以及那些确实能帮人省时间的工具。
+      </p>
+
+      <p>
+        公开仓库 README 里给出的定位很直接：这里主要围绕自动化脚本、保姆级教程和工具箱展开。重点不是堆概念，而是把复杂技术尽量讲清楚、拆简单，让更多人能真正上手。
+      </p>
+
+      <h2>这里会写什么</h2>
+      <ul>
+        <li>自动化脚本：例如环境搭建、优选 IP、API 转换这类偏实用的脚本与方法</li>
+        <li>教程与配置：配合视频内容整理的部署文档、配置文件和步骤说明</li>
+        <li>工具整理：收集和筛选值得关注的开源工具，方便后续查阅与复用</li>
+      </ul>
+
+      <h2>这个站点想做的事</h2>
+      <p>比起空谈趋势，这里更重视能落地的东西：</p>
+      <ul>
+        <li>把复杂问题拆成普通人也能执行的步骤</li>
+        <li>把视频里提到的内容沉淀成可检索、可复用的文字</li>
+        <li>把有价值的脚本、配置和工具持续归档下来</li>
+      </ul>
+
+      <AboutSocialIcons />
+
+      <p>
+        如果你是从公开仓库或视频内容过来的，这个 about 页可以把它理解成一句话：这里会持续整理那些真正有用、能直接拿去做事的技术内容。
+      </p>
+    </section>
+  </main>
+  <Footer />
+</Layout>

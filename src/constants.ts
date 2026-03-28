@@ -1,83 +1,65 @@
 import type { Props } from "astro";
-import IconMail from "@/assets/icons/IconMail.svg";
-import IconGitHub from "@/assets/icons/IconGitHub.svg";
 import IconBrandX from "@/assets/icons/IconBrandX.svg";
-import IconLinkedin from "@/assets/icons/IconLinkedin.svg";
-import IconWhatsapp from "@/assets/icons/IconWhatsapp.svg";
-import IconFacebook from "@/assets/icons/IconFacebook.svg";
 import IconTelegram from "@/assets/icons/IconTelegram.svg";
-import IconPinterest from "@/assets/icons/IconPinterest.svg";
-import { SITE } from "@/config";
+import IconBilibili from "@/assets/icons/IconBilibili.svg";
+import IconTikTok from "@/assets/icons/IconTikTok.svg";
+import IconKuaishou from "@/assets/icons/IconKuaishou.svg";
+import IconZhihu from "@/assets/icons/IconZhihu.svg";
 
-interface Social {
+export interface SocialLink {
   name: string;
   href: string;
   linkTitle: string;
-  icon: (_props: Props) => Element;
+  label?: string;
+  icon?: (_props: Props) => Element;
+  showInMinimalList?: boolean;
 }
 
-export const SOCIALS: Social[] = [
-  {
-    name: "GitHub",
-    href: "https://github.com/satnaing/astro-paper",
-    linkTitle: `${SITE.title} on GitHub`,
-    icon: IconGitHub,
-  },
+export const AUTHOR_LINKS: SocialLink[] = [
   {
     name: "X",
-    href: "https://x.com/username",
-    linkTitle: `${SITE.title} on X`,
+    label: "X / Twitter",
+    href: "https://x.com/real_masteralan",
+    linkTitle: "在 X / Twitter 上关注艾伦",
     icon: IconBrandX,
-  },
-  {
-    name: "LinkedIn",
-    href: "https://www.linkedin.com/in/username/",
-    linkTitle: `${SITE.title} on LinkedIn`,
-    icon: IconLinkedin,
-  },
-  {
-    name: "Mail",
-    href: "mailto:yourmail@gmail.com",
-    linkTitle: `Send an email to ${SITE.title}`,
-    icon: IconMail,
-  },
-] as const;
-
-export const SHARE_LINKS: Social[] = [
-  {
-    name: "WhatsApp",
-    href: "https://wa.me/?text=",
-    linkTitle: `Share this post via WhatsApp`,
-    icon: IconWhatsapp,
-  },
-  {
-    name: "Facebook",
-    href: "https://www.facebook.com/sharer.php?u=",
-    linkTitle: `Share this post on Facebook`,
-    icon: IconFacebook,
-  },
-  {
-    name: "X",
-    href: "https://x.com/intent/post?url=",
-    linkTitle: `Share this post on X`,
-    icon: IconBrandX,
+    showInMinimalList: true,
   },
   {
     name: "Telegram",
-    href: "https://t.me/share/url?url=",
-    linkTitle: `Share this post via Telegram`,
+    href: "https://t.me/MasterAlanLab",
+    linkTitle: "访问艾伦的 Telegram 频道",
     icon: IconTelegram,
+    showInMinimalList: true,
   },
   {
-    name: "Pinterest",
-    href: "https://pinterest.com/pin/create/button/?url=",
-    linkTitle: `Share this post on Pinterest`,
-    icon: IconPinterest,
+    name: "Bilibili",
+    href: "https://space.bilibili.com/3691004225914941",
+    linkTitle: "访问艾伦的 Bilibili 空间",
+    icon: IconBilibili,
+    showInMinimalList: true,
   },
   {
-    name: "Mail",
-    href: "mailto:?subject=See%20this%20post&body=",
-    linkTitle: `Share this post via email`,
-    icon: IconMail,
+    name: "抖音",
+    href: "https://v.douyin.com/LzR5Sns8mQU",
+    linkTitle: "访问艾伦的抖音主页",
+    icon: IconTikTok,
+    showInMinimalList: true,
   },
-] as const;
+  {
+    name: "快手",
+    href: "https://www.kuaishou.com/profile/3x77ra8rcg7fpne",
+    linkTitle: "访问艾伦的快手主页",
+    icon: IconKuaishou,
+    showInMinimalList: true,
+  },
+  {
+    name: "知乎",
+    href: "https://www.zhihu.com/people/ds3gaz7z",
+    linkTitle: "访问艾伦的知乎主页",
+    icon: IconZhihu,
+    showInMinimalList: true,
+  },
+];
+
+export const SOCIALS: SocialLink[] = AUTHOR_LINKS;
+export const SHARE_LINKS: SocialLink[] = AUTHOR_LINKS;
