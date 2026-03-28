@@ -15,7 +15,7 @@ async function loadGoogleFont(
   ).text();
 
   const resource = css.match(
-    /src: url\((.+?)\) format\('(opentype|truetype)'\)/
+    /src: url\((.+?)\) format\('(opentype|truetype|woff2?)'\)/
   );
 
   if (!resource) throw new Error("Failed to download dynamic font");
@@ -45,7 +45,19 @@ async function loadGoogleFonts(
       name: "IBM Plex Mono",
       font: "IBM+Plex+Mono",
       weight: 700,
-      style: "bold",
+      style: "normal",
+    },
+    {
+      name: "Noto Sans SC",
+      font: "Noto+Sans+SC",
+      weight: 400,
+      style: "normal",
+    },
+    {
+      name: "Noto Sans SC",
+      font: "Noto+Sans+SC",
+      weight: 700,
+      style: "normal",
     },
   ];
 
