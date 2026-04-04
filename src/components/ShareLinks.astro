@@ -8,7 +8,9 @@ import LinkButton from "./LinkButton.astro";
     <div class="flex items-center gap-3">
       <span class="italic">关注作者：</span>
       <div class="flex flex-wrap items-center gap-3">
-        {AUTHOR_LINKS.filter(social => social.icon && social.showInMinimalList).map(social => (
+        {AUTHOR_LINKS.filter(
+          social => social.icon && social.showInMinimalList
+        ).map(social => (
           <LinkButton
             href={social.href}
             class="text-foreground/80 transition hover:text-accent"

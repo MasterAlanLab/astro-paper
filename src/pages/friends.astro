@@ -1,0 +1,39 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import Main from "@/layouts/Main.astro";
+import { SITE } from "@/config";
+
+const friends = [
+  {
+    name: "微尘印记",
+    description: "长期实践 Obsidian + AI 的个人知识系统。",
+    href: "https://weichen.ink",
+  },
+];
+---
+
+<Layout title={`朋友 | ${SITE.title}`}>
+  <Header />
+  <Main pageTitle="朋友" pageDesc="一些值得常去看看的站点。">
+    <div class="grid gap-4 sm:grid-cols-2">
+      {
+        friends.map(friend => (
+          <a
+            href={friend.href}
+            class="group rounded-lg border border-border bg-background p-5 transition hover:-translate-y-0.5 hover:border-foreground/35 hover:bg-muted/30"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <h2 class="text-lg font-semibold">{friend.name}</h2>
+            <p class="mt-2 text-sm leading-6 text-foreground/62">
+              {friend.description}
+            </p>
+          </a>
+        ))
+      }
+    </div>
+  </Main>
+  <Footer />
+</Layout>

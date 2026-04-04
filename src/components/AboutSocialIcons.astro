@@ -6,9 +6,11 @@ import LinkButton from "./LinkButton.astro";
 {
   AUTHOR_LINKS.some(social => social.icon && social.showInMinimalList) && (
     <div class="mt-6 flex items-center gap-3">
-      <span class="text-sm text-muted-foreground">关注我：</span>
+      <span class="text-muted-foreground text-sm">关注我：</span>
       <div class="flex items-center gap-3">
-        {AUTHOR_LINKS.filter(social => social.icon && social.showInMinimalList).map(social => (
+        {AUTHOR_LINKS.filter(
+          social => social.icon && social.showInMinimalList
+        ).map(social => (
           <LinkButton
             href={social.href}
             class="text-foreground/80 transition hover:text-accent"

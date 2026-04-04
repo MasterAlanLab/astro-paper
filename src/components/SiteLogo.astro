@@ -1,0 +1,40 @@
+---
+import { SITE } from "@/config";
+---
+
+<a
+  href="/"
+  class="inline-flex items-center text-foreground opacity-95 transition hover:opacity-100"
+  aria-label={`${SITE.title} 首页`}
+>
+  <svg
+    viewBox="0 0 260 64"
+    class="h-8 w-auto"
+    role="img"
+    aria-labelledby="site-logo-title"
+  >
+    <title id="site-logo-title">{SITE.title}</title>
+    <text
+      x="6"
+      y="38"
+      fill="currentColor"
+      font-family="STKaiti, KaiTi, 'Songti SC', serif"
+      font-size="30"
+      font-weight="700"
+      letter-spacing="2"
+    >
+      艾伦的博客
+    </text>
+    <path
+      d="M153 43c20 3 43 3 64-1 8-2 15-5 23-8-4 8-14 14-28 17-20 4-42 2-59-8Z"
+      fill="currentColor"
+      opacity="0.84"></path>
+    <path
+      d="M167 36c15 2 30 2 45-1"
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-width="2"
+      opacity="0.45"></path>
+  </svg>
+</a>

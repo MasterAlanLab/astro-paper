@@ -1,0 +1,132 @@
+---
+type CategoryTab = {
+  label: string;
+  filter: string;
+  count?: number;
+  icon?: string;
+  active?: boolean;
+};
+
+type Props = {
+  tabs: CategoryTab[];
+};
+
+const { tabs } = Astro.props;
+---
+
+<section class="border-b border-border bg-background/95" id="home-categories">
+  <nav
+    class="home-category-nav mx-auto flex max-w-[77.5rem] gap-2 overflow-x-auto px-4 py-4 sm:justify-center sm:gap-3 sm:px-6"
+    aria-label="首页分类"
+  >
+    {
+      tabs.map(tab => (
+        <button
+          type="button"
+          data-home-filter={tab.filter}
+          aria-pressed={tab.active ? "true" : "false"}
+          class:list={[
+            "home-category-tab",
+            { "home-category-tab-active": tab.active },
+          ]}
+        >
+          {tab.icon && <span>{tab.icon}</span>}
+          <span>{tab.label}</span>
+          {typeof tab.count === "number" && (
+            <span class="home-category-count">{tab.count}</span>
+          )}
+        </button>
+      ))
+    }
+  </nav>
+</section>
+
+<script>
+  const setupHomeCategoryTabs = () => {
+    const tabs = document.querySelectorAll<HTMLButtonElement>("[data-home-filter]");
+    const posts = document.querySelectorAll<HTMLElement>("[data-home-post]");
+    const emptyState = document.querySelector<HTMLElement>("[data-home-empty]");
+    const sentinel = document.querySelector<HTMLElement>("[data-home-sentinel]");
+    const POSTS_BATCH_SIZE = 8;
+
+    if (!tabs.length || !posts.length) return;
+
+    let currentFilter = "all";
+    let visibleCount = POSTS_BATCH_SIZE;
+    let observer: IntersectionObserver | null = null;
+
+    const getPostGroups = (post: HTMLElement) =>
+      post.dataset.homeGroups?.split(" ") ?? [];
+
+    const matchesFilter = (post: HTMLElement, filter: string) => {
+      const groups = getPostGroups(post);
+      return filter === "all" || groups.includes(filter);
+    };
+
+    const updatePostVisibility = () => {
+      const matchingPosts = Array.from(posts).filter(post =>
+        matchesFilter(post, currentFilter)
+      );
+      const visiblePosts = matchingPosts.slice(0, visibleCount);
+
+      posts.forEach(post => {
+        const visible = visiblePosts.includes(post);
+        post.hidden = !visible;
+        post.classList.toggle("hidden", !visible);
+      });
+
+      emptyState?.classList.toggle("hidden", visiblePosts.length > 0);
+    };
+
+    const selectFilter = (filter: string) => {
+      currentFilter = filter;
+      visibleCount = POSTS_BATCH_SIZE;
+      tabs.forEach(tab => {
+        const active = tab.dataset.homeFilter === filter;
+        tab.setAttribute("aria-pressed", String(active));
+        tab.classList.toggle("home-category-tab-active", active);
+      });
+      updatePostVisibility();
+    };
+
+    const loadMorePosts = () => {
+      const matchingPosts = Array.from(posts).filter(post =>
+        matchesFilter(post, currentFilter)
+      );
+      if (visibleCount >= matchingPosts.length) return;
+      visibleCount += POSTS_BATCH_SIZE;
+      updatePostVisibility();
+    };
+
+    const setupObserver = () => {
+      if (!sentinel) return;
+      if (observer) observer.disconnect();
+      observer = new IntersectionObserver(
+        entries => {
+          if (entries.some(entry => entry.isIntersecting)) {
+            loadMorePosts();
+          }
+        },
+        { rootMargin: "200px" }
+      );
+      observer.observe(sentinel);
+    };
+
+    tabs.forEach(tab => {
+      if (tab.dataset.filterReady === "true") return;
+      tab.dataset.filterReady = "true";
+      tab.addEventListener("click", () =>
+        selectFilter(tab.dataset.homeFilter ?? "all")
+      );
+    });
+
+    selectFilter(currentFilter);
+    setupObserver();
+  };
+
+  setupHomeCategoryTabs();
+
+  document.addEventListener("astro:after-swap", () => {
+    setupHomeCategoryTabs();
+  });
+</script>

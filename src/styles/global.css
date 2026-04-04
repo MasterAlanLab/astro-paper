@@ -5,23 +5,25 @@
 
 :root,
 html[data-theme="light"] {
-  --background: #fdfdfd;
-  --foreground: #282728;
-  --accent: #006cac;
-  --muted: #e6e6e6;
-  --border: #ece9e9;
+  --background: #f7f7f5;
+  --foreground: #1d1d1f;
+  --accent: #1d1d1f;
+  --muted: #ececea;
+  --border: #dededb;
 }
 
 html[data-theme="dark"] {
-  --background: #212737;
-  --foreground: #eaedf3;
-  --accent: #ff6b01;
-  --muted: #343f60;
-  --border: #ab4b08;
+  --background: #0b0c0f;
+  --foreground: #f5f5f7;
+  --accent: #f5f5f7;
+  --muted: #171b21;
+  --border: #2a3038;
 }
 
 @theme inline {
-  --font-app: var(--font-google-sans-code);
+  --font-app:
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "PingFang SC", "Microsoft YaHei", sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-accent: var(--accent);
@@ -39,7 +41,7 @@ html[data-theme="dark"] {
     @apply overflow-y-scroll scroll-smooth;
   }
   body {
-    @apply flex min-h-svh flex-col bg-background font-app text-foreground selection:bg-accent/75 selection:text-background;
+    @apply flex min-h-svh flex-col bg-background font-app text-foreground antialiased selection:bg-accent/75 selection:text-background;
   }
   a,
   button {
@@ -59,8 +61,85 @@ html[data-theme="dark"] {
   @apply mx-auto w-full max-w-app px-4;
 }
 
+@utility home-layout {
+  @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
+}
+
+@utility tools-layout {
+  @apply mx-auto w-full max-w-7xl px-4 sm:px-6;
+}
+
 .active-nav {
-  @apply underline decoration-wavy decoration-2 underline-offset-8;
+  @apply text-foreground;
+}
+
+.soft-divider {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in srgb, var(--border) 78%, transparent),
+    transparent
+  );
+}
+
+.chip {
+  @apply inline-flex items-center justify-center rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground/70 transition hover:border-foreground/40 hover:text-foreground;
+}
+
+.chip-active {
+  @apply border-foreground bg-foreground text-background hover:text-background;
+}
+
+.home-category-tab {
+  @apply inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-full border border-border bg-background px-4 text-sm font-semibold text-foreground/72 shadow-sm transition hover:border-foreground/35 hover:text-foreground;
+}
+
+.home-category-tab-active {
+  @apply border-foreground bg-foreground text-background hover:border-foreground hover:text-background;
+}
+
+.home-category-count {
+  @apply rounded-full bg-muted px-2 py-0.5 text-xs text-foreground/42;
+}
+
+.home-category-tab-active .home-category-count {
+  @apply bg-background/16 text-background/70;
+}
+
+.home-hero-title {
+  font-family: STKaiti, KaiTi, "Songti SC", "Noto Serif CJK SC", serif;
+}
+
+@media (min-width: 768px) and (max-height: 900px) {
+  .home-hero-inner {
+    padding-top: 0.5rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .home-hero-image {
+    height: 8rem;
+  }
+
+  .home-social-links,
+  .home-promo-grid,
+  .home-hero-separator {
+    margin-top: 1.25rem;
+  }
+
+  .home-promo-card {
+    min-height: 6rem;
+  }
+
+  .home-category-nav {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .home-posts-section {
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+  }
 }
 
 /* Source: https://piccalil.li/blog/a-more-modern-css-reset/ */

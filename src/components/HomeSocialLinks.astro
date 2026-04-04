@@ -1,0 +1,50 @@
+---
+import { AUTHOR_LINKS } from "@/constants";
+import IconRss from "@/assets/icons/IconRss.svg";
+
+const homeSocials = AUTHOR_LINKS.filter(
+  social => social.icon && social.showInMinimalList
+).sort((a, b) => {
+  const order = [
+    "YouTube",
+    "X",
+    "Bilibili",
+    "Telegram",
+  ];
+  const rank = (name: string) => {
+    const index = order.indexOf(name);
+    return index === -1 ? order.length : index;
+  };
+
+  return rank(a.name) - rank(b.name);
+});
+---
+
+<div
+  class="home-social-links mt-7 flex flex-wrap items-center justify-center gap-7 sm:gap-9"
+>
+  {
+    homeSocials.map(social => (
+      <a
+        href={social.href}
+        class="text-foreground/58 transition hover:text-foreground dark:text-white/58 dark:hover:text-white"
+        title={social.linkTitle}
+        aria-label={social.linkTitle}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {social.icon && <social.icon class="size-5 text-current opacity-90" />}
+      </a>
+    ))
+  }
+  <a
+    href="/rss.xml"
+    class="text-foreground/58 transition hover:text-foreground dark:text-white/58 dark:hover:text-white"
+    title="RSS 订阅"
+    aria-label="RSS 订阅"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <IconRss class="size-5 stroke-current stroke-2 opacity-90" />
+  </a>
+</div>

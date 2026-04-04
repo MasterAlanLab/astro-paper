@@ -1,0 +1,83 @@
+---
+import type { AffiliateItem } from "@/data/affiliates";
+import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
+
+type Props = AffiliateItem & {
+  compact?: boolean;
+  variant?: "default" | "promo";
+};
+
+const {
+  tag,
+  title,
+  description,
+  href,
+  category,
+  compact = false,
+  variant = "default",
+} = Astro.props;
+
+const isPromo = variant === "promo";
+---
+
+<a
+  href={href}
+  class:list={[
+    "group relative flex flex-col justify-between rounded-lg border transition",
+    { "home-promo-card": isPromo },
+    isPromo
+      ? "min-h-[6.75rem] border-border bg-background/60 p-4 text-left text-foreground shadow-[0_18px_70px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 hover:border-foreground/30 hover:bg-muted/30 dark:border-white/15 dark:bg-white/[0.025] dark:text-white dark:shadow-[0_18px_70px_rgba(255,255,255,0.04)] dark:hover:border-white/30 dark:hover:bg-white/[0.055]"
+      : "min-h-36 border-border bg-background/40 p-5 hover:-translate-y-0.5 hover:border-accent/45 hover:bg-muted/20",
+    { "min-h-32": compact && !isPromo },
+  ]}
+>
+  <div>
+    <div class="mb-2 flex items-center justify-between gap-3">
+      <span
+        class:list={[
+          "text-[0.64rem] font-semibold tracking-[0.2em] uppercase",
+          isPromo
+            ? "text-foreground/42 dark:text-white/42"
+            : "text-foreground/45",
+        ]}
+      >
+        {tag}
+      </span>
+      <IconArrowRight
+        class:list={[
+          "size-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5",
+          isPromo
+            ? "stroke-foreground/45 group-hover:stroke-foreground dark:stroke-white/45 dark:group-hover:stroke-white"
+            : "stroke-foreground/45 group-hover:stroke-foreground",
+        ]}
+      />
+    </div>
+    <h3
+      class:list={[
+        "font-semibold",
+        isPromo
+          ? "text-base leading-6 text-foreground dark:text-white"
+          : "text-base text-foreground",
+      ]}
+    >
+      {title}
+    </h3>
+    <p
+      class:list={[
+        "mt-2",
+        isPromo
+          ? "line-clamp-2 text-sm leading-6 text-foreground/58 dark:text-white/58"
+          : "text-sm leading-6 text-foreground/62",
+      ]}
+    >
+      {description}
+    </p>
+  </div>
+  {
+    !isPromo && (
+      <div class="mt-4 flex items-center justify-between gap-3">
+        <span class="text-xs font-medium text-foreground/45">{category}</span>
+      </div>
+    )
+  }
+</a>

@@ -1,0 +1,112 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import AffiliateCard from "@/components/AffiliateCard.astro";
+import { AFFILIATES } from "@/data/affiliates";
+import { SITE } from "@/config";
+
+const featuredAffiliates = AFFILIATES.filter(item => item.featured);
+const categories = Array.from(new Set(AFFILIATES.map(item => item.category)));
+const categoryGroups = categories.map((category, index) => ({
+  category,
+  id: `category-${index + 1}`,
+  items: AFFILIATES.filter(item => item.category === category),
+}));
+---
+
+<Layout
+  title={`工具箱 | ${SITE.title}`}
+  description="艾伦常用和实测过的 AI、建站、VPS 与效率工具。"
+>
+  <Header />
+  <main id="main-content" class="tools-layout py-10 sm:py-14">
+    <section
+      class="grid gap-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(360px,0.72fr)] lg:items-end"
+    >
+      <div>
+        <p
+          class="text-xs font-semibold tracking-[0.22em] text-foreground/45 uppercase"
+        >
+          tools
+        </p>
+        <h1
+          class="mt-4 max-w-3xl text-4xl font-bold tracking-normal text-foreground sm:text-5xl"
+        >
+          工具箱
+        </h1>
+        <p
+          class="mt-5 max-w-2xl text-base leading-8 text-foreground/68 sm:text-lg"
+        >
+          这里整理我正在使用、评测过或值得继续观察的工具与服务，重点放在 AI
+          工作流、博客建站、轻量部署和自动化。
+        </p>
+        <nav class="mt-7 flex flex-wrap gap-2" aria-label="工具分类">
+          {
+            categoryGroups.map(group => (
+              <a class="chip" href={`#${group.id}`}>
+                {group.category}
+              </a>
+            ))
+          }
+        </nav>
+      </div>
+
+      <div
+        class="relative min-h-52 overflow-hidden rounded-lg border border-border bg-muted sm:min-h-64"
+      >
+        <img
+          src="/images/dandelion.webp"
+          alt=""
+          class="absolute inset-0 h-full w-full object-cover"
+          loading="eager"
+        />
+      </div>
+    </section>
+
+    {
+      featuredAffiliates.length > 0 && (
+        <section class="pt-12 sm:pt-16" aria-labelledby="featured-tools">
+          <div class="mb-5 flex items-end justify-between gap-4">
+            <div>
+              <p class="text-xs font-semibold tracking-[0.18em] text-foreground/45 uppercase">
+                featured
+              </p>
+              <h2 id="featured-tools" class="mt-2 text-2xl font-semibold">
+                精选推荐
+              </h2>
+            </div>
+          </div>
+          <div class="grid gap-4 md:grid-cols-3">
+            {featuredAffiliates.map(item => (
+              <AffiliateCard {...item} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <div class="soft-divider my-12 sm:my-16"></div>
+
+    <section class="space-y-12" aria-label="全部工具">
+      {
+        categoryGroups.map(group => (
+          <div id={group.id} class="scroll-mt-24">
+            <div class="mb-5 flex items-baseline justify-between gap-4">
+              <h2 class="text-xl font-semibold">{group.category}</h2>
+              <span class="text-sm text-foreground/45">
+                {group.items.length} 项
+              </span>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {group.items.map(item => (
+                <AffiliateCard compact {...item} />
+              ))}
+            </div>
+          </div>
+        ))
+      }
+    </section>
+  </main>
+  <Footer />
+</Layout>

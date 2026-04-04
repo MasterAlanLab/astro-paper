@@ -32,9 +32,12 @@ function setPreference(): void {
 function reflectPreference(): void {
   document.firstElementChild?.setAttribute("data-theme", themeValue);
 
-  const themeToggleLabel = themeValue === LIGHT ? "切换到深色模式" : "切换到浅色模式";
-  document.querySelector("#theme-btn")?.setAttribute("aria-label", themeToggleLabel);
-  document.querySelector("#theme-btn")?.setAttribute("title", themeToggleLabel);
+  const themeToggleLabel =
+    themeValue === LIGHT ? "切换到深色模式" : "切换到浅色模式";
+  document.querySelectorAll("[data-theme-toggle]").forEach(button => {
+    button.setAttribute("aria-label", themeToggleLabel);
+    button.setAttribute("title", themeToggleLabel);
+  });
 
   // Get a reference to the body element
   const body = document.body;
@@ -78,11 +81,18 @@ function setThemeFeature(): void {
   reflectPreference();
 
   // now this script can find and listen for clicks on the control
-  document.querySelector("#theme-btn")?.addEventListener("click", () => {
-    themeValue = themeValue === LIGHT ? DARK : LIGHT;
-    window.theme?.setTheme(themeValue);
-    setPreference();
-  });
+  document
+    .querySelectorAll<HTMLButtonElement>("[data-theme-toggle]")
+    .forEach(button => {
+      if (button.dataset.themeReady === "true") return;
+
+      button.dataset.themeReady = "true";
+      button.addEventListener("click", () => {
+        themeValue = themeValue === LIGHT ? DARK : LIGHT;
+        window.theme?.setTheme(themeValue);
+        setPreference();
+      });
+    });
 }
 
 // Set up theme features after page load

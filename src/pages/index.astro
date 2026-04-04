@@ -3,91 +3,146 @@ import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
-import LinkButton from "@/components/LinkButton.astro";
-import Card from "@/components/Card.astro";
+import AffiliateCard from "@/components/AffiliateCard.astro";
+import HomeSocialLinks from "@/components/HomeSocialLinks.astro";
+import HomeCategoryTabs from "@/components/HomeCategoryTabs.astro";
+import HomePostCard from "@/components/HomePostCard.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
-import IconRss from "@/assets/icons/IconRss.svg";
-import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
-import { SITE } from "@/config";
+import { AFFILIATES } from "@/data/affiliates";
 
 const posts = await getCollection("blog");
 
 const sortedPosts = getSortedPosts(posts);
-const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
-const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
+const homeAffiliates = AFFILIATES.filter(item => item.featured).slice(0, 3);
+
+const hasMatchingTag = (
+  post: (typeof sortedPosts)[number],
+  matchTags: string[]
+) =>
+  post.data.tags.some(tag =>
+    matchTags.some(matchTag => tag.toLowerCase() === matchTag.toLowerCase())
+  );
+
+
+const groupMatchers = {
+  tools: (post: (typeof sortedPosts)[number]) =>
+    hasMatchingTag(post, [
+      "API",
+      "VPS",
+      "Claude",
+      "Google Play",
+      "反向代理",
+      "中转",
+    ]),
+  ai: (post: (typeof sortedPosts)[number]) =>
+    hasMatchingTag(post, ["AI", "Claude", "Codex", "Agent", "Workflow"]),
+  building: (post: (typeof sortedPosts)[number]) =>
+    hasMatchingTag(post, ["API", "VPS", "反向代理", "中转", "日本", "评测"]),
+  vps: (post: (typeof sortedPosts)[number]) => hasMatchingTag(post, ["VPS"]),
+};
+
+const homePosts = sortedPosts.map(post => ({
+  post,
+  groups: Object.entries(groupMatchers)
+    .filter(([, matcher]) => matcher(post))
+    .map(([group]) => group),
+}));
+
+const countGroup = (filter: string) =>
+  filter === "all"
+    ? homePosts.length
+    : homePosts.filter(({ groups }) => groups.includes(filter)).length;
+
+const categoryTabs = [
+  { label: "全部", filter: "all", count: countGroup("all") },
+  { label: "工具", filter: "tools", count: countGroup("tools") },
+  { label: "AI", filter: "ai", count: countGroup("ai") },
+  {
+    label: "建站",
+    filter: "building",
+    count: countGroup("building"),
+  },
+  { label: "VPS", filter: "vps", count: countGroup("vps") },
+];
 ---
 
 <Layout>
   <Header />
-  <main id="main-content" data-layout="index" class="app-layout">
-    <section id="hero" class:list={["pt-8 pb-6", "border-b border-border"]}>
-      <div class="flex items-center gap-3">
-        <h1 class="my-4 inline-block text-4xl font-bold sm:my-8 sm:text-5xl">
-          艾伦的博客
-        </h1>
-        <a
-          target="_blank"
-          href="/rss.xml"
-          class="inline-block"
-          aria-label="RSS 订阅"
-          title="RSS 订阅"
-        >
-          <IconRss
-            width={20}
-            height={20}
-            class="scale-125 stroke-accent stroke-3 rtl:-rotate-90"
-          />
-          <span class="sr-only">RSS 订阅</span>
-        </a>
-      </div>
+  <main id="main-content" data-layout="index">
+    <section
+      id="hero"
+      class="relative overflow-hidden border-b border-border bg-background text-foreground dark:bg-[#080a0c] dark:text-white"
+    >
+      <div
+        class="home-hero-inner mx-auto flex w-full max-w-[48rem] flex-col items-center px-4 pt-4 pb-7 text-center sm:px-6 sm:pt-5 sm:pb-8"
+      >
+        <img
+          src="/images/dandelion-mark.webp"
+          alt=""
+          class="home-hero-image pointer-events-none h-36 w-full max-w-[30rem] object-contain opacity-45 invert dark:opacity-64 dark:invert-0"
+          loading="eager"
+        />
 
-      <p>
-        这里记录艾伦持续整理的中文技术内容：自动化脚本、部署笔记、工具清单，以及那些真正能拿来解决问题的方法。
-      </p>
-      <p class="mt-2">
-        如果你喜欢把复杂东西拆开讲明白、把零散经验沉淀成可复用的步骤，这里大概就是合适的地方。
-      </p>
+        <h1
+          class="home-hero-title mt-0 text-2xl font-bold tracking-normal text-foreground dark:text-white"
+        >
+          你好，我是艾伦。
+        </h1>
+        <p
+          class="mt-4 max-w-[42rem] text-base leading-8 text-foreground/64 dark:text-white/68"
+        >
+          长期实践 AI、自动化和轻量部署，记录普通人如何把 AI
+          变成真正能长期协作的工作伙伴。
+        </p>
+
+        <HomeSocialLinks />
+
+        {
+          homeAffiliates.length > 0 && (
+            <div class="home-promo-grid mt-7 grid w-full max-w-[48rem] gap-4 grid-cols-3">
+              {homeAffiliates.map(item => (
+                <AffiliateCard variant="promo" {...item} />
+              ))}
+            </div>
+          )
+        }
+
+        <div
+          class="home-hero-separator mt-7 text-2xl leading-none text-foreground/18 dark:text-white/22"
+        >
+          ~~
+        </div>
+      </div>
     </section>
 
-    {
-      featuredPosts.length > 0 && (
-        <section
-          id="featured"
-          class:list={[
-            "pt-12 pb-6",
-            { "border-b border-border": recentPosts.length > 0 },
-          ]}
-        >
-          <h2 class="text-2xl font-semibold tracking-wide">推荐文章</h2>
-          <ul>
-            {featuredPosts.map(data => (
-              <Card variant="h3" {...data} />
-            ))}
-          </ul>
-        </section>
-      )
-    }
+    <HomeCategoryTabs tabs={categoryTabs} />
 
-    {
-      recentPosts.length > 0 && (
-        <section id="recent-posts" class="pt-12 pb-6">
-          <h2 class="text-2xl font-semibold tracking-wide">最新文章</h2>
-          <ul>
-            {recentPosts.map(
-              (data, index) =>
-                index < SITE.postPerIndex && <Card variant="h3" {...data} />
-            )}
-          </ul>
-        </section>
-      )
-    }
+    <section
+      id="home-posts"
+      class="home-posts-section mx-auto w-full max-w-[77.5rem] px-4 py-8 sm:px-6 sm:py-9"
+    >
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          homePosts.map(({ post, groups }) => (
+            <div
+              data-home-post
+              data-home-groups={groups.join(" ")}
+            >
+              <HomePostCard {...post} />
+            </div>
+          ))
+        }
+      </div>
 
-    <div class="my-8 text-center">
-      <LinkButton href="/posts/">
-        全部文章
-        <IconArrowRight class="inline-block rtl:-rotate-180" />
-      </LinkButton>
-    </div>
+      <p
+        class="hidden rounded-lg border border-border bg-background px-5 py-8 text-center text-sm text-foreground/55"
+        data-home-empty
+      >
+        暂无文章
+      </p>
+
+      <div data-home-sentinel class="h-2"></div>
+    </section>
   </main>
   <Footer />
 </Layout>
@@ -100,6 +155,4 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
       sessionStorage.setItem("backUrl", "/");
     }
   });
-</script>
-
 </script>
