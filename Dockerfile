@@ -1,15 +1,12 @@
 # Base stage for building the static files
-FROM node:lts AS base
+FROM oven/bun:latest AS base
 WORKDIR /app
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+COPY package.json ./
+RUN bun install
 
 COPY . .
-RUN pnpm run build
+RUN bun run build
 
 # Runtime stage for serving the application
 FROM nginx:mainline-alpine-slim AS runtime
