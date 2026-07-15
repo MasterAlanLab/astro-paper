@@ -9,12 +9,17 @@ type CategoryTab = {
 
 type Props = {
   tabs: CategoryTab[];
+  batchSize?: number;
 };
 
-const { tabs } = Astro.props;
+const { tabs, batchSize = 8 } = Astro.props;
 ---
 
-<section class="border-b border-border bg-background/95" id="home-categories">
+<section
+  class="border-b border-border bg-background/95"
+  id="home-categories"
+  data-home-batch-size={batchSize}
+>
   <nav
     class="home-category-nav mx-auto flex max-w-[77.5rem] gap-2 overflow-x-auto px-4 py-4 sm:justify-center sm:gap-3 sm:px-6"
     aria-label="首页分类"
@@ -24,6 +29,7 @@ const { tabs } = Astro.props;
         <button
           type="button"
           data-home-filter={tab.filter}
+          data-home-count={tab.count}
           aria-pressed={tab.active ? "true" : "false"}
           class:list={[
             "home-category-tab",
@@ -42,18 +48,78 @@ const { tabs } = Astro.props;
 </section>
 
 <script>
+  import type { HomePostSummary } from "@/utils/homePosts";
+
+  let homePostsObserver: IntersectionObserver | null = null;
+  let homePostsRequest: Promise<HomePostSummary[]> | null = null;
+  let homePostsData: HomePostSummary[] | null = null;
+
+  const createHomePost = (post: HomePostSummary) => {
+    const container = document.createElement("div");
+    container.dataset.homePost = "";
+    container.dataset.homeGroups = post.groups.join(" ");
+    container.dataset.homePath = post.path;
+
+    const article = document.createElement("article");
+    const link = document.createElement("a");
+    link.href = post.path;
+    link.className =
+      "group flex min-h-[11rem] flex-col rounded-lg border border-border bg-background p-5 transition hover:-translate-y-0.5 hover:border-foreground/35 hover:bg-muted/20";
+
+    const title = document.createElement("h3");
+    title.className =
+      "line-clamp-2 text-base leading-7 font-semibold text-foreground";
+    title.textContent = post.title;
+
+    const description = document.createElement("p");
+    description.className =
+      "mt-3 line-clamp-3 text-sm leading-6 text-foreground/60";
+    description.textContent = post.description;
+
+    const publishedTime = document.createElement("time");
+    publishedTime.className =
+      "mt-auto pt-5 text-xs font-medium text-foreground/42";
+    publishedTime.dateTime = post.pubDatetime;
+    publishedTime.textContent = `发布于 ${post.publishedDate}`;
+
+    link.append(title, description, publishedTime);
+    article.appendChild(link);
+    container.appendChild(article);
+    return container;
+  };
+
   const setupHomeCategoryTabs = () => {
-    const tabs = document.querySelectorAll<HTMLButtonElement>("[data-home-filter]");
-    const posts = document.querySelectorAll<HTMLElement>("[data-home-post]");
-    const emptyState = document.querySelector<HTMLElement>("[data-home-empty]");
-    const sentinel = document.querySelector<HTMLElement>("[data-home-sentinel]");
-    const POSTS_BATCH_SIZE = 8;
+    homePostsObserver?.disconnect();
+    homePostsObserver = null;
 
-    if (!tabs.length || !posts.length) return;
+    const root = document.querySelector<HTMLElement>("#home-categories");
+    const postsRoot = document.querySelector<HTMLElement>("#home-posts");
+    if (!root || !postsRoot) return;
 
-    let currentFilter = "all";
-    let visibleCount = POSTS_BATCH_SIZE;
-    let observer: IntersectionObserver | null = null;
+    const tabs = root.querySelectorAll<HTMLButtonElement>("[data-home-filter]");
+    const postsGrid = postsRoot.querySelector<HTMLElement>(
+      "[data-home-posts-grid]"
+    );
+    const emptyState =
+      postsRoot.querySelector<HTMLElement>("[data-home-empty]");
+    const sentinel = postsRoot.querySelector<HTMLElement>(
+      "[data-home-sentinel]"
+    );
+    const postsBatchSize = Math.max(
+      1,
+      Number.parseInt(root.dataset.homeBatchSize ?? "8", 10) || 8
+    );
+
+    if (!tabs.length || !postsGrid) return;
+
+    let currentFilter =
+      Array.from(tabs).find(tab => tab.getAttribute("aria-pressed") === "true")
+        ?.dataset.homeFilter ?? "all";
+    let visibleCount = postsBatchSize;
+    const visibleCounts = new Map<string, number>([
+      [currentFilter, visibleCount],
+    ]);
+    let updateInProgress = false;
 
     const getPostGroups = (post: HTMLElement) =>
       post.dataset.homeGroups?.split(" ") ?? [];
@@ -63,65 +129,139 @@ const { tabs } = Astro.props;
       return filter === "all" || groups.includes(filter);
     };
 
-    const updatePostVisibility = () => {
-      const matchingPosts = Array.from(posts).filter(post =>
+    const getFilterTotal = () => {
+      const activeTab = Array.from(tabs).find(
+        tab => tab.dataset.homeFilter === currentFilter
+      );
+      return Number(activeTab?.dataset.homeCount ?? 0);
+    };
+
+    const loadAllPosts = () => {
+      if (homePostsRequest) return homePostsRequest;
+
+      const postsURL = postsRoot.dataset.homePostsUrl;
+      if (!postsURL) return Promise.resolve([]);
+
+      homePostsRequest = fetch(postsURL)
+        .then(response => {
+          if (!response.ok) throw new Error("Failed to load home posts");
+          return response.json() as Promise<HomePostSummary[]>;
+        })
+        .then(posts => {
+          homePostsData = posts;
+          return posts;
+        })
+        .catch(() => []);
+
+      return homePostsRequest;
+    };
+
+    const updatePostVisibility = async (loadMissingPosts = false) => {
+      let posts = Array.from(
+        postsGrid.querySelectorAll<HTMLElement>("[data-home-post]")
+      );
+      const matchingPosts = posts.filter(post =>
         matchesFilter(post, currentFilter)
       );
-      const visiblePosts = matchingPosts.slice(0, visibleCount);
+      const filterTotal = getFilterTotal();
+
+      if (
+        filterTotal > matchingPosts.length &&
+        (loadMissingPosts || visibleCount > matchingPosts.length)
+      ) {
+        await loadAllPosts();
+      }
+
+      let visiblePosts: Set<HTMLElement>;
+
+      if (homePostsData) {
+        const desiredPosts = homePostsData
+          .filter(
+            post =>
+              currentFilter === "all" || post.groups.includes(currentFilter)
+          )
+          .slice(0, visibleCount);
+        const postsByPath = new Map(
+          posts.map(post => [post.dataset.homePath, post] as const)
+        );
+        const desiredElements = desiredPosts.map(post => {
+          const existingPost = postsByPath.get(post.path);
+          if (existingPost) return existingPost;
+
+          const newPost = createHomePost(post);
+          postsByPath.set(post.path, newPost);
+          return newPost;
+        });
+
+        for (const post of desiredElements) postsGrid.appendChild(post);
+
+        posts = Array.from(
+          postsGrid.querySelectorAll<HTMLElement>("[data-home-post]")
+        );
+        visiblePosts = new Set(desiredElements);
+      } else {
+        visiblePosts = new Set(matchingPosts.slice(0, visibleCount));
+      }
 
       posts.forEach(post => {
-        const visible = visiblePosts.includes(post);
+        const visible = visiblePosts.has(post);
         post.hidden = !visible;
         post.classList.toggle("hidden", !visible);
       });
 
-      emptyState?.classList.toggle("hidden", visiblePosts.length > 0);
+      emptyState?.classList.toggle("hidden", visiblePosts.size > 0);
     };
 
-    const selectFilter = (filter: string) => {
+    const selectFilter = async (filter: string) => {
+      visibleCounts.set(currentFilter, visibleCount);
       currentFilter = filter;
-      visibleCount = POSTS_BATCH_SIZE;
+      visibleCount = visibleCounts.get(filter) ?? postsBatchSize;
       tabs.forEach(tab => {
         const active = tab.dataset.homeFilter === filter;
         tab.setAttribute("aria-pressed", String(active));
         tab.classList.toggle("home-category-tab-active", active);
       });
-      updatePostVisibility();
+      await updatePostVisibility(filter !== "all");
+      setupObserver();
     };
 
-    const loadMorePosts = () => {
-      const matchingPosts = Array.from(posts).filter(post =>
-        matchesFilter(post, currentFilter)
-      );
-      if (visibleCount >= matchingPosts.length) return;
-      visibleCount += POSTS_BATCH_SIZE;
-      updatePostVisibility();
+    const loadMorePosts = async () => {
+      if (updateInProgress || visibleCount >= getFilterTotal()) return;
+
+      updateInProgress = true;
+      try {
+        visibleCount += postsBatchSize;
+        visibleCounts.set(currentFilter, visibleCount);
+        await updatePostVisibility(true);
+      } finally {
+        updateInProgress = false;
+      }
     };
 
     const setupObserver = () => {
+      homePostsObserver?.disconnect();
+      homePostsObserver = null;
       if (!sentinel) return;
-      if (observer) observer.disconnect();
-      observer = new IntersectionObserver(
+      homePostsObserver = new IntersectionObserver(
         entries => {
           if (entries.some(entry => entry.isIntersecting)) {
-            loadMorePosts();
+            void loadMorePosts();
           }
         },
         { rootMargin: "200px" }
       );
-      observer.observe(sentinel);
+      homePostsObserver.observe(sentinel);
     };
 
     tabs.forEach(tab => {
       if (tab.dataset.filterReady === "true") return;
       tab.dataset.filterReady = "true";
-      tab.addEventListener("click", () =>
-        selectFilter(tab.dataset.homeFilter ?? "all")
-      );
+      tab.addEventListener("click", () => {
+        void selectFilter(tab.dataset.homeFilter ?? "all");
+      });
     });
 
-    selectFilter(currentFilter);
-    setupObserver();
+    void selectFilter(currentFilter);
   };
 
   setupHomeCategoryTabs();

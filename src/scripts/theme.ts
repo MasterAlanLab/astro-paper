@@ -7,9 +7,25 @@ const DARK = "dark";
 // Can be "light", "dark", or empty string for system's prefers-color-scheme
 const initialColorScheme = "";
 
+function getStoredTheme(): string | null {
+  try {
+    return localStorage.getItem(THEME);
+  } catch {
+    return null;
+  }
+}
+
+function storeTheme(value: string): void {
+  try {
+    localStorage.setItem(THEME, value);
+  } catch {
+    // Theme still works for the current page when storage is unavailable.
+  }
+}
+
 function getPreferTheme(): string {
   // get theme data from local storage (user's explicit choice)
-  const currentTheme = localStorage.getItem(THEME);
+  const currentTheme = getStoredTheme();
   if (currentTheme) return currentTheme;
 
   // return initial color scheme if it is set (site default)
@@ -25,7 +41,7 @@ function getPreferTheme(): string {
 let themeValue = window.theme?.themeValue ?? getPreferTheme();
 
 function setPreference(): void {
-  localStorage.setItem(THEME, themeValue);
+  storeTheme(themeValue);
   reflectPreference();
 }
 
@@ -120,7 +136,9 @@ document.addEventListener("astro:before-swap", event => {
 window
   .matchMedia("(prefers-color-scheme: dark)")
   .addEventListener("change", ({ matches: isDark }) => {
+    if (getStoredTheme()) return;
+
     themeValue = isDark ? DARK : LIGHT;
     window.theme?.setTheme(themeValue);
-    setPreference();
+    reflectPreference();
   });

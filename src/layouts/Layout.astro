@@ -6,6 +6,7 @@ import "@/styles/global.css";
 
 type Props = {
   title?: string;
+  articleTitle?: string;
   author?: string;
   profile?: string;
   description?: string;
@@ -13,51 +14,70 @@ type Props = {
   canonicalURL?: string;
   pubDatetime?: Date;
   modDatetime?: Date | null;
-  scrollSmooth?: boolean;
+  pageType?: "website" | "article";
 };
 
 const {
   title = SITE.title,
+  articleTitle,
   author = SITE.author,
   profile = SITE.profile,
   description = SITE.desc,
   ogImage = SITE.ogImage ? `/${SITE.ogImage}` : "/og.png",
-  canonicalURL = new URL(Astro.url.pathname, Astro.url),
+  canonicalURL,
   pubDatetime,
   modDatetime,
-  scrollSmooth = false,
+  pageType = pubDatetime ? "article" : "website",
 } = Astro.props;
 
-const socialImageURL = new URL(ogImage, Astro.url);
+const siteURL = Astro.site ?? Astro.url;
+const canonicalHref = new URL(canonicalURL ?? Astro.url.pathname, siteURL);
+const socialImageURL = new URL(ogImage, siteURL);
+const isArticle = pageType === "article";
 
-const structuredData = {
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  headline: `${title}`,
-  image: `${socialImageURL}`,
-  datePublished: `${pubDatetime?.toISOString()}`,
-  ...(modDatetime && { dateModified: modDatetime.toISOString() }),
-  author: [
-    {
-      "@type": "Person",
-      name: `${author}`,
-      ...(profile && { url: profile }),
-    },
-  ],
+const publisher = {
+  "@type": "Person",
+  name: author,
+  ...(profile && { url: profile }),
 };
+
+const structuredData = isArticle
+  ? {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: articleTitle ?? title,
+      description,
+      url: canonicalHref.href,
+      mainEntityOfPage: canonicalHref.href,
+      image: socialImageURL.href,
+      ...(pubDatetime && { datePublished: pubDatetime.toISOString() }),
+      ...(modDatetime && { dateModified: modDatetime.toISOString() }),
+      author: publisher,
+    }
+  : {
+      "@context": "https://schema.org",
+      "@type": Astro.url.pathname === "/" ? "WebSite" : "WebPage",
+      name: title,
+      description,
+      url: canonicalHref.href,
+      image: socialImageURL.href,
+      inLanguage: SITE.lang || "en",
+      publisher,
+    };
+
+const structuredDataJSON = JSON.stringify(structuredData).replaceAll(
+  "<",
+  "\\u003c"
+);
 ---
 
 <!doctype html>
-<html
-  dir={SITE.dir}
-  lang=`${SITE.lang ?? "en"}`
-  class={`${scrollSmooth && "scroll-smooth"}`}
->
+<html dir={SITE.dir} lang={SITE.lang || "en"}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="canonical" href={canonicalURL} />
+    <link rel="canonical" href={canonicalHref} />
     <meta name="generator" content={Astro.generator} />
 
     <!-- General Meta Tags -->
@@ -70,8 +90,10 @@ const structuredData = {
     <!-- Open Graph / Facebook -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:url" content={canonicalHref} />
     <meta property="og:image" content={socialImageURL} />
+    <meta property="og:type" content={isArticle ? "article" : "website"} />
+    <meta property="og:site_name" content={SITE.title} />
 
     <!-- Article Published/Modified time -->
     {
@@ -92,17 +114,17 @@ const structuredData = {
     }
 
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content={canonicalURL} />
-    <meta property="twitter:title" content={title} />
-    <meta property="twitter:description" content={description} />
-    <meta property="twitter:image" content={socialImageURL} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={canonicalHref} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImageURL} />
 
     <!-- Google JSON-LD Structured data -->
     <script
       type="application/ld+json"
       is:inline
-      set:html={JSON.stringify(structuredData)}
+      set:html={structuredDataJSON}
     />
 
     <!-- Enable RSS feed auto-discovery  -->
@@ -111,7 +133,7 @@ const structuredData = {
       rel="alternate"
       type="application/rss+xml"
       title={SITE.title}
-      href={new URL("rss.xml", Astro.site)}
+      href={new URL("rss.xml", siteURL)}
     />
 
     <meta name="theme-color" content="" />
@@ -134,7 +156,16 @@ const structuredData = {
     <script is:inline>
       (function () {
         const initialColorScheme = ""; // "light" | "dark"
-        const currentTheme = localStorage.getItem("theme");
+
+        function getStoredTheme() {
+          try {
+            return localStorage.getItem("theme");
+          } catch {
+            return null;
+          }
+        }
+
+        const currentTheme = getStoredTheme();
 
         function getPreferTheme() {
           if (currentTheme) return currentTheme;

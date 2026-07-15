@@ -35,21 +35,21 @@ Telegram 搜索机器人最常见的用途是：
 2. 进入机器人对话界面，点击“开始”或发送 `/start`。
 3. 在聊天框中输入你想要搜索的关键词。比如 ![alt text](未命名.png)
 
-    再比如
+   再比如
 
-    ![alt text](image-9.png)
-    ![alt text](image-10.png)
+   ![alt text](image-9.png)
+   ![alt text](image-10.png)
 
 **连视频会员的钱都省了**
 
 ## 常见搜索机器人合集
 
-以下是我测试过仍可用的 Telegram 搜索机器人，功能上都差不都，但是不同的机器人搜录的群组不一样。 
+以下是我测试过仍可用的 Telegram 搜索机器人，功能上都差不都，但是不同的机器人搜录的群组不一样。
 **如果一个机器人搜不出来想要的内容，不妨切换到另外一个机器人搜索来试试**
 
 - [极搜bot](https://t.me/jiso?start=a_597766375)：Telegram 必备的搜索引擎，适合直接搜索群组、频道、视频、音乐等内容。
 - [另一个极搜bot](https://t.me/jisou2?start=a_597766375)
-：Telegram 必备的搜索引擎，适合直接搜索群组、频道、视频、音乐等内容。
+  ：Telegram 必备的搜索引擎，适合直接搜索群组、频道、视频、音乐等内容。
 - [搜搜bot](https://t.me/sosoo?start=a_597766375)：直接输入关键词搜索，适合想快速找到内容的场景。
 - [神马搜索bot](https://t.me/smss?start=spread_597766375)：侧重 Telegram 内资料与资源搜索。
 - [快搜bot](https://t.me/kuai?start=a_9VW7KM)：中文搜索引擎，适合查找有趣的群组、频道、视频、音乐。

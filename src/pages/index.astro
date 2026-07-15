@@ -7,62 +7,41 @@ import AffiliateCard from "@/components/AffiliateCard.astro";
 import HomeSocialLinks from "@/components/HomeSocialLinks.astro";
 import HomeCategoryTabs from "@/components/HomeCategoryTabs.astro";
 import HomePostCard from "@/components/HomePostCard.astro";
+import { getPath } from "@/utils/getPath";
 import getSortedPosts from "@/utils/getSortedPosts";
+import { getHomePostGroups } from "@/utils/homePosts";
 import { AFFILIATES } from "@/data/affiliates";
+import { SITE } from "@/config";
 
 const posts = await getCollection("blog");
 
 const sortedPosts = getSortedPosts(posts);
 const homeAffiliates = AFFILIATES.filter(item => item.featured).slice(0, 3);
 
-const hasMatchingTag = (
-  post: (typeof sortedPosts)[number],
-  matchTags: string[]
-) =>
-  post.data.tags.some(tag =>
-    matchTags.some(matchTag => tag.toLowerCase() === matchTag.toLowerCase())
-  );
-
-
-const groupMatchers = {
-  tools: (post: (typeof sortedPosts)[number]) =>
-    hasMatchingTag(post, [
-      "API",
-      "VPS",
-      "Claude",
-      "Google Play",
-      "反向代理",
-      "中转",
-    ]),
-  ai: (post: (typeof sortedPosts)[number]) =>
-    hasMatchingTag(post, ["AI", "Claude", "Codex", "Agent", "Workflow"]),
-  building: (post: (typeof sortedPosts)[number]) =>
-    hasMatchingTag(post, ["API", "VPS", "反向代理", "中转", "日本", "评测"]),
-  vps: (post: (typeof sortedPosts)[number]) => hasMatchingTag(post, ["VPS"]),
-};
-
 const homePosts = sortedPosts.map(post => ({
   post,
-  groups: Object.entries(groupMatchers)
-    .filter(([, matcher]) => matcher(post))
-    .map(([group]) => group),
+  groups: getHomePostGroups(post),
 }));
+const initialHomePosts = homePosts.slice(0, SITE.postPerIndex);
 
-const countGroup = (filter: string) =>
-  filter === "all"
-    ? homePosts.length
-    : homePosts.filter(({ groups }) => groups.includes(filter)).length;
+const groupCounts = homePosts.reduce<Record<string, number>>(
+  (counts, { groups }) => {
+    for (const group of groups) counts[group] = (counts[group] ?? 0) + 1;
+    return counts;
+  },
+  { all: homePosts.length }
+);
 
 const categoryTabs = [
-  { label: "全部", filter: "all", count: countGroup("all") },
-  { label: "工具", filter: "tools", count: countGroup("tools") },
-  { label: "AI", filter: "ai", count: countGroup("ai") },
+  { label: "全部", filter: "all", count: groupCounts.all, active: true },
+  { label: "工具", filter: "tools", count: groupCounts.tools ?? 0 },
+  { label: "AI", filter: "ai", count: groupCounts.ai ?? 0 },
   {
     label: "建站",
     filter: "building",
-    count: countGroup("building"),
+    count: groupCounts.building ?? 0,
   },
-  { label: "VPS", filter: "vps", count: countGroup("vps") },
+  { label: "VPS", filter: "vps", count: groupCounts.vps ?? 0 },
 ];
 ---
 
@@ -99,7 +78,7 @@ const categoryTabs = [
 
         {
           homeAffiliates.length > 0 && (
-            <div class="home-promo-grid mt-7 grid w-full max-w-[48rem] gap-4 grid-cols-3">
+            <div class="home-promo-grid mt-7 grid w-full max-w-[48rem] grid-cols-3 gap-4">
               {homeAffiliates.map(item => (
                 <AffiliateCard variant="promo" {...item} />
               ))}
@@ -115,18 +94,23 @@ const categoryTabs = [
       </div>
     </section>
 
-    <HomeCategoryTabs tabs={categoryTabs} />
+    <HomeCategoryTabs tabs={categoryTabs} batchSize={SITE.postPerIndex} />
 
     <section
       id="home-posts"
+      data-home-posts-url="/home-posts.json"
       class="home-posts-section mx-auto w-full max-w-[77.5rem] px-4 py-8 sm:px-6 sm:py-9"
     >
-      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div
+        data-home-posts-grid
+        class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
+      >
         {
-          homePosts.map(({ post, groups }) => (
+          initialHomePosts.map(({ post, groups }) => (
             <div
               data-home-post
               data-home-groups={groups.join(" ")}
+              data-home-path={getPath(post.id, post.filePath)}
             >
               <HomePostCard {...post} />
             </div>

@@ -1,7 +1,9 @@
 import type { APIRoute } from "astro";
-import { getCollection, type CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
 import { getPath } from "@/utils/getPath";
 import { generateOgImageForPost } from "@/utils/generateOgImages";
+import { loadOgFonts } from "@/utils/loadOgFonts";
+import postFilter from "@/utils/postFilter";
 import { SITE } from "@/config";
 
 export async function getStaticPaths() {
@@ -10,12 +12,20 @@ export async function getStaticPaths() {
   }
 
   const posts = await getCollection("blog").then(p =>
-    p.filter(({ data }) => !data.draft && !data.ogImage)
+    p.filter(post => postFilter(post) && !post.data.ogImage)
   );
 
-  return posts.map(post => ({
+  const fontCharacters = posts
+    .map(post => post.data.title + post.data.author)
+    .join("");
+
+  await loadOgFonts(fontCharacters + SITE.title + "by", "posts");
+
+  const imageBuffers = await Promise.all(posts.map(generateOgImageForPost));
+
+  return posts.map((post, index) => ({
     params: { slug: getPath(post.id, post.filePath, false) },
-    props: post,
+    props: { imageBuffer: imageBuffers[index] },
   }));
 }
 
@@ -27,8 +37,8 @@ export const GET: APIRoute = async ({ props }) => {
     });
   }
 
-  const buffer = await generateOgImageForPost(props as CollectionEntry<"blog">);
-  return new Response(new Uint8Array(buffer), {
+  const { imageBuffer } = props as { imageBuffer: ArrayBuffer };
+  return new Response(new Uint8Array(imageBuffer), {
     headers: { "Content-Type": "image/png" },
   });
 };

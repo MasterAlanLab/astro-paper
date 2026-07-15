@@ -107,6 +107,11 @@ html[data-theme="dark"] {
   @apply bg-background/16 text-background/70;
 }
 
+[data-home-post] {
+  content-visibility: auto;
+  contain-intrinsic-size: 11rem;
+}
+
 .home-hero-title {
   font-family: STKaiti, KaiTi, "Songti SC", "Noto Serif CJK SC", serif;
 }

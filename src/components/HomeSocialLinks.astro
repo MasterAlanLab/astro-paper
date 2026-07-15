@@ -5,12 +5,7 @@ import IconRss from "@/assets/icons/IconRss.svg";
 const homeSocials = AUTHOR_LINKS.filter(
   social => social.icon && social.showInMinimalList
 ).sort((a, b) => {
-  const order = [
-    "YouTube",
-    "X",
-    "Bilibili",
-    "Telegram",
-  ];
+  const order = ["YouTube", "X", "Bilibili", "Telegram"];
   const rank = (name: string) => {
     const index = order.indexOf(name);
     return index === -1 ? order.length : index;

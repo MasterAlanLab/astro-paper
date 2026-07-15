@@ -1,8 +1,8 @@
-# Ignore Astro files
-*.astro
-
-# Ignore node_modules directory
+.git/
+.github/
+.astro/
 node_modules/
-
-# Ignore build output
 dist/
+public/pagefind/
+.DS_Store
+*.log

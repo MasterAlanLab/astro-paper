@@ -1,14 +1,14 @@
 # Base stage for building the static files
-FROM oven/bun:latest AS base
+FROM oven/bun:1.3.14-alpine AS base
 WORKDIR /app
 
-COPY package.json ./
-RUN bun install
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
 
 COPY . .
 RUN bun run build
 
 # Runtime stage for serving the application
-FROM nginx:mainline-alpine-slim AS runtime
+FROM nginx:1.29.1-alpine-slim AS runtime
 COPY --from=base /app/dist /usr/share/nginx/html
 EXPOSE 80

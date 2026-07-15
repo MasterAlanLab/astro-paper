@@ -1,19 +1,14 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import { getPath } from "@/utils/getPath";
-import { SITE } from "@/config";
+import { formatPublishedDate } from "@/utils/homePosts";
 
 type Props = CollectionEntry<"blog">;
 
 const { id, data, filePath } = Astro.props;
-const { title, description, pubDatetime, timezone } = data;
+const { title, description, pubDatetime } = data;
 const postPath = getPath(id, filePath);
-const publishedDate = new Intl.DateTimeFormat("zh-CN", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-  timeZone: timezone || SITE.timezone,
-}).format(pubDatetime);
+const publishedDate = formatPublishedDate(Astro.props);
 ---
 
 <article>
