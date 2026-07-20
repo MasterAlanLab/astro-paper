@@ -57,7 +57,7 @@ const { tabs, batchSize = 8 } = Astro.props;
   const createHomePost = (post: HomePostSummary) => {
     const container = document.createElement("div");
     container.dataset.homePost = "";
-    container.dataset.homeGroups = post.groups.join(" ");
+    container.dataset.homeCategories = post.categories.join(" ");
     container.dataset.homePath = post.path;
 
     const article = document.createElement("article");
@@ -121,12 +121,12 @@ const { tabs, batchSize = 8 } = Astro.props;
     ]);
     let updateInProgress = false;
 
-    const getPostGroups = (post: HTMLElement) =>
-      post.dataset.homeGroups?.split(" ") ?? [];
+    const getPostCategories = (post: HTMLElement) =>
+      post.dataset.homeCategories?.split(" ") ?? [];
 
     const matchesFilter = (post: HTMLElement, filter: string) => {
-      const groups = getPostGroups(post);
-      return filter === "all" || groups.includes(filter);
+      const categories = getPostCategories(post);
+      return filter === "all" || categories.includes(filter);
     };
 
     const getFilterTotal = () => {
@@ -178,7 +178,7 @@ const { tabs, batchSize = 8 } = Astro.props;
         const desiredPosts = homePostsData
           .filter(
             post =>
-              currentFilter === "all" || post.groups.includes(currentFilter)
+              currentFilter === "all" || post.categories.includes(currentFilter)
           )
           .slice(0, visibleCount);
         const postsByPath = new Map(

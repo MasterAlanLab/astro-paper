@@ -4,6 +4,9 @@ pubDatetime: 2026-04-05T12:00:00+08:00
 title: 小白自建中转站 应该选择什么项目？
 featured: false
 draft: false
+categories:
+  - AI
+  - 教程
 tags:
   - API
   - 反向代理

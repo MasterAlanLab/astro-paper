@@ -12,7 +12,6 @@ const {
   title,
   description,
   href,
-  category,
   compact = false,
   variant = "default",
 } = Astro.props;
@@ -73,11 +72,4 @@ const isPromo = variant === "promo";
       {description}
     </p>
   </div>
-  {
-    !isPromo && (
-      <div class="mt-4 flex items-center justify-between gap-3">
-        <span class="text-xs font-medium text-foreground/45">{category}</span>
-      </div>
-    )
-  }
 </a>

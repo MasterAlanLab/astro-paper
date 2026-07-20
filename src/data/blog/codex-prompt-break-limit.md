@@ -4,6 +4,9 @@ pubDatetime: 2026-04-10T12:00:00+08:00
 title: 以 Codex 举例，实现 “破甲”
 featured: false
 draft: false
+categories:
+  - AI
+  - 教程
 tags:
   - Codex
   - 提示词

@@ -5,6 +5,10 @@ import { getPath } from "../src/utils/getPath";
 import { getPostNavigation } from "../src/utils/getPostNavigation";
 import getPostsByTag from "../src/utils/getPostsByTag";
 import getTagGroups from "../src/utils/getTagGroups";
+import {
+  getHomeCategories,
+  getHomePostCategories,
+} from "../src/utils/homePosts";
 import { isPostPublished } from "../src/utils/postFilter";
 import { slugifyStr } from "../src/utils/slugify";
 
@@ -23,6 +27,7 @@ const makePost = (
       author: SITE.author,
       pubDatetime,
       title: id,
+      categories: ["未分类"],
       tags: ["others"],
       description: id,
       ...options,
@@ -58,6 +63,33 @@ const tests: Array<[string, () => void]> = [
       assert.equal(
         isPostPublished(draftPost, { now, includeScheduled: true }),
         false
+      );
+    },
+  ],
+  [
+    "builds homepage filters from explicit multi-category metadata",
+    () => {
+      const aiGuide = makePost("ai-guide", new Date("2026-03-02"), {
+        categories: ["AI", "技术教程"],
+      });
+      const vpsGuide = makePost("vps-guide", new Date("2026-03-01"), {
+        categories: ["VPS", "技术教程", "技术教程"],
+      });
+
+      assert.deepEqual(getHomePostCategories(aiGuide), ["ai", "技术教程"]);
+      const categories = getHomeCategories([aiGuide, vpsGuide]);
+      assert.equal(categories.length, 3);
+      assert.deepEqual(
+        categories.find(category => category.filter === "ai"),
+        { label: "AI", filter: "ai", count: 1 }
+      );
+      assert.deepEqual(
+        categories.find(category => category.filter === "vps"),
+        { label: "VPS", filter: "vps", count: 1 }
+      );
+      assert.deepEqual(
+        categories.find(category => category.filter === "技术教程"),
+        { label: "技术教程", filter: "技术教程", count: 2 }
       );
     },
   ],

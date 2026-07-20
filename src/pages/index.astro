@@ -9,7 +9,7 @@ import HomeCategoryTabs from "@/components/HomeCategoryTabs.astro";
 import HomePostCard from "@/components/HomePostCard.astro";
 import { getPath } from "@/utils/getPath";
 import getSortedPosts from "@/utils/getSortedPosts";
-import { getHomePostGroups } from "@/utils/homePosts";
+import { getHomeCategories, getHomePostCategories } from "@/utils/homePosts";
 import { AFFILIATES } from "@/data/affiliates";
 import { SITE } from "@/config";
 
@@ -20,28 +20,18 @@ const homeAffiliates = AFFILIATES.filter(item => item.featured).slice(0, 3);
 
 const homePosts = sortedPosts.map(post => ({
   post,
-  groups: getHomePostGroups(post),
+  categories: getHomePostCategories(post),
 }));
 const initialHomePosts = homePosts.slice(0, SITE.postPerIndex);
 
-const groupCounts = homePosts.reduce<Record<string, number>>(
-  (counts, { groups }) => {
-    for (const group of groups) counts[group] = (counts[group] ?? 0) + 1;
-    return counts;
-  },
-  { all: homePosts.length }
-);
-
 const categoryTabs = [
-  { label: "全部", filter: "all", count: groupCounts.all, active: true },
-  { label: "工具", filter: "tools", count: groupCounts.tools ?? 0 },
-  { label: "AI", filter: "ai", count: groupCounts.ai ?? 0 },
   {
-    label: "建站",
-    filter: "building",
-    count: groupCounts.building ?? 0,
+    label: "全部",
+    filter: "all",
+    count: homePosts.length,
+    active: true,
   },
-  { label: "VPS", filter: "vps", count: groupCounts.vps ?? 0 },
+  ...getHomeCategories(sortedPosts),
 ];
 ---
 
@@ -70,8 +60,7 @@ const categoryTabs = [
         <p
           class="mt-4 max-w-[42rem] text-base leading-8 text-foreground/64 dark:text-white/68"
         >
-          长期实践 AI、自动化和轻量部署，记录普通人如何把 AI
-          变成真正能长期协作的工作伙伴。
+          这里是我的个人博客，分享一些关于AI、VPS、网络技术等方面的内容，也会分享一些实用的资源和工具，希望能对你有所帮助。
         </p>
 
         <HomeSocialLinks />
@@ -106,10 +95,10 @@ const categoryTabs = [
         class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
       >
         {
-          initialHomePosts.map(({ post, groups }) => (
+          initialHomePosts.map(({ post, categories }) => (
             <div
               data-home-post
-              data-home-groups={groups.join(" ")}
+              data-home-categories={categories.join(" ")}
               data-home-path={getPath(post.id, post.filePath)}
             >
               <HomePostCard {...post} />

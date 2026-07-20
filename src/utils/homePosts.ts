@@ -1,22 +1,15 @@
 import type { CollectionEntry } from "astro:content";
 import { SITE } from "@/config";
 import { getPath } from "./getPath";
+import { slugifyStr } from "./slugify";
 
 type Post = CollectionEntry<"blog">;
 
-const homePostGroupTags = {
-  tools: ["API", "VPS", "Claude", "Google Play", "反向代理", "中转"],
-  ai: ["AI", "Claude", "Codex", "Agent", "Workflow"],
-  building: ["API", "VPS", "反向代理", "中转", "日本", "评测"],
-  vps: ["VPS"],
-} as const;
-
-const normalizedGroupTags = Object.fromEntries(
-  Object.entries(homePostGroupTags).map(([group, tags]) => [
-    group,
-    new Set(tags.map(tag => tag.toLowerCase())),
-  ])
-) as Record<keyof typeof homePostGroupTags, Set<string>>;
+export interface HomeCategory {
+  label: string;
+  filter: string;
+  count: number;
+}
 
 export interface HomePostSummary {
   path: string;
@@ -24,15 +17,36 @@ export interface HomePostSummary {
   description: string;
   pubDatetime: string;
   publishedDate: string;
-  groups: string[];
+  categories: string[];
 }
 
-export const getHomePostGroups = (post: Post) =>
-  Object.entries(normalizedGroupTags)
-    .filter(([, tags]) =>
-      post.data.tags.some(tag => tags.has(tag.toLowerCase()))
-    )
-    .map(([group]) => group);
+export const getHomePostCategories = (post: Post) =>
+  Array.from(new Set(post.data.categories.map(slugifyStr)));
+
+export const getHomeCategories = (posts: Post[]): HomeCategory[] => {
+  const categories = new Map<string, HomeCategory>();
+
+  for (const post of posts) {
+    const postCategories = new Set<string>();
+
+    for (const label of post.data.categories) {
+      const filter = slugifyStr(label);
+      if (postCategories.has(filter)) continue;
+
+      postCategories.add(filter);
+      const category = categories.get(filter);
+      if (category) {
+        category.count += 1;
+      } else {
+        categories.set(filter, { label, filter, count: 1 });
+      }
+    }
+  }
+
+  return Array.from(categories.values()).sort((a, b) =>
+    a.label.localeCompare(b.label, "zh-CN")
+  );
+};
 
 export const formatPublishedDate = (post: Post) =>
   new Intl.DateTimeFormat("zh-CN", {
@@ -48,5 +62,5 @@ export const toHomePostSummary = (post: Post): HomePostSummary => ({
   description: post.data.description,
   pubDatetime: post.data.pubDatetime.toISOString(),
   publishedDate: formatPublishedDate(post),
-  groups: getHomePostGroups(post),
+  categories: getHomePostCategories(post),
 });

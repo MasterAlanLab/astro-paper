@@ -4,6 +4,9 @@ pubDatetime: 2026-04-21T12:00:00+08:00
 title: Google Play 订阅 Claude 完全指南
 featured: false
 draft: false
+categories:
+  - AI
+  - 教程
 tags:
   - Claude
   - Google Play

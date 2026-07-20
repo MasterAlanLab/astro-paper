@@ -4,6 +4,9 @@ pubDatetime: 2026-03-28T16:00:00+08:00
 title: 我是如何把 AI 真正用起来的
 featured: true
 draft: false
+categories:
+  - AI
+  - 教程
 tags:
   - AI
   - Agent
