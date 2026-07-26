@@ -1,0 +1,77 @@
+---
+import { ADSENSE } from "@/config";
+
+type Props = {
+  slot: string;
+  class?: string;
+};
+
+const { slot, class: className = "" } = Astro.props;
+
+const enabled = ADSENSE.enabled && ADSENSE.client !== "" && slot !== "";
+---
+
+{
+  enabled && (
+    <div class:list={["ad-slot", className]} data-pagefind-ignore>
+      <ins
+        class="adsbygoogle"
+        style="display:block"
+        data-ad-client={ADSENSE.client}
+        data-ad-slot={slot}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
+    </div>
+  )
+}
+
+<style is:global>
+  /* 未填充的广告位不占空间 */
+  .ad-slot ins.adsbygoogle[data-ad-status="unfilled"] {
+    display: none !important;
+  }
+</style>
+
+<script>
+  import { ADSENSE } from "@/config";
+
+  declare global {
+    interface Window {
+      adsbygoogle?: object[];
+    }
+  }
+
+  const loadAds = () => {
+    if (!ADSENSE.enabled || !ADSENSE.client) return;
+
+    // 只处理本次页面上尚未初始化的广告位（AdSense 处理过的
+    // ins 会带上 data-ad-status，重复 push 会抛错）
+    const pendingSlots = document.querySelectorAll(
+      "ins.adsbygoogle:not([data-ad-status])"
+    );
+    if (!pendingSlots.length) return;
+
+    if (!document.querySelector("script[data-adsense-loader]")) {
+      const loader = document.createElement("script");
+      loader.async = true;
+      loader.crossOrigin = "anonymous";
+      loader.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE.client}`;
+      loader.dataset.adsenseLoader = "true";
+      document.head.appendChild(loader);
+    }
+
+    window.adsbygoogle = window.adsbygoogle || [];
+    pendingSlots.forEach(() => {
+      try {
+        window.adsbygoogle!.push({});
+      } catch {
+        // 广告拦截器或重复初始化导致的报错不影响页面
+      }
+    });
+  };
+
+  // ClientRouter 站内跳转后也会触发 astro:page-load，
+  // 新换入的广告位在这里重新初始化
+  document.addEventListener("astro:page-load", loadAds);
+</script>

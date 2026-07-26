@@ -4,6 +4,7 @@ import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import Tag from "@/components/Tag.astro";
+import AdSlot from "@/components/AdSlot.astro";
 import Datetime from "@/components/Datetime.astro";
 import EditPost from "@/components/EditPost.astro";
 import ShareLinks from "@/components/ShareLinks.astro";
@@ -14,7 +15,7 @@ import { getPostNavigation } from "@/utils/getPostNavigation";
 import { slugifyStr } from "@/utils/slugify";
 import IconChevronLeft from "@/assets/icons/IconChevronLeft.svg";
 import IconChevronRight from "@/assets/icons/IconChevronRight.svg";
-import { SITE } from "@/config";
+import { SITE, ADSENSE } from "@/config";
 
 type Props = {
   post: CollectionEntry<"blog">;
@@ -107,12 +108,16 @@ const { prevPost, nextPost } = getPostNavigation(posts, post.id);
       >
       <EditPost {hideEditPost} {post} class="max-sm:hidden" />
     </div>
+    <AdSlot slot={ADSENSE.slots.postTop} class="mt-8" />
+
     <article
       id="article"
       class="app-prose mt-8 w-full max-w-app prose-pre:bg-(--shiki-light-bg) dark:prose-pre:bg-(--shiki-dark-bg)"
     >
       <Content />
     </article>
+
+    <AdSlot slot={ADSENSE.slots.postBottom} class="mt-8" />
 
     <hr class="my-8 border-dashed" />
 
