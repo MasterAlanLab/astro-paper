@@ -2,6 +2,7 @@ import { Resvg } from "@resvg/resvg-js";
 import { type CollectionEntry } from "astro:content";
 import postOgImage from "./og-templates/post";
 import siteOgImage from "./og-templates/site";
+import type { FontData } from "./loadOgFonts";
 
 function toArrayBuffer(bytes: {
   buffer: ArrayBufferLike;
@@ -20,8 +21,11 @@ function svgBufferToPngBuffer(svg: string) {
   return toArrayBuffer(pngData.asPng());
 }
 
-export async function generateOgImageForPost(post: CollectionEntry<"blog">) {
-  const svg = await postOgImage(post);
+export async function generateOgImageForPost(
+  post: CollectionEntry<"blog">,
+  fonts?: FontData[]
+) {
+  const svg = await postOgImage(post, fonts);
   return svgBufferToPngBuffer(svg);
 }
 

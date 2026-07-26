@@ -44,6 +44,3 @@ export const AUTHOR_LINKS: SocialLink[] = [
     showInMinimalList: true,
   },
 ];
-
-export const SOCIALS: SocialLink[] = AUTHOR_LINKS;
-export const SHARE_LINKS: SocialLink[] = AUTHOR_LINKS;

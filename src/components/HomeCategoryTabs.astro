@@ -1,4 +1,6 @@
 ---
+import HomePostCard from "./HomePostCard.astro";
+
 type CategoryTab = {
   label: string;
   filter: string;
@@ -45,6 +47,19 @@ const { tabs, batchSize = 8 } = Astro.props;
       ))
     }
   </nav>
+
+  <template data-home-post-template>
+    <div>
+      <HomePostCard
+        path=""
+        title=""
+        description=""
+        pubDatetime=""
+        publishedDate=""
+        categories={[]}
+      />
+    </div>
+  </template>
 </section>
 
 <script>
@@ -54,47 +69,36 @@ const { tabs, batchSize = 8 } = Astro.props;
   let homePostsRequest: Promise<HomePostSummary[]> | null = null;
   let homePostsData: HomePostSummary[] | null = null;
 
-  const createHomePost = (post: HomePostSummary) => {
-    const container = document.createElement("div");
-    container.dataset.homePost = "";
-    container.dataset.homeCategories = post.categories.join(" ");
-    container.dataset.homePath = post.path;
-
-    const article = document.createElement("article");
-    const link = document.createElement("a");
-    link.href = post.path;
-    link.className =
-      "group flex min-h-[11rem] flex-col rounded-lg border border-border bg-background p-5 transition hover:-translate-y-0.5 hover:border-foreground/35 hover:bg-muted/20";
-
-    const title = document.createElement("h3");
-    title.className =
-      "line-clamp-2 text-base leading-7 font-semibold text-foreground";
-    title.textContent = post.title;
-
-    const description = document.createElement("p");
-    description.className =
-      "mt-3 line-clamp-3 text-sm leading-6 text-foreground/60";
-    description.textContent = post.description;
-
-    const publishedTime = document.createElement("time");
-    publishedTime.className =
-      "mt-auto pt-5 text-xs font-medium text-foreground/42";
-    publishedTime.dateTime = post.pubDatetime;
-    publishedTime.textContent = `发布于 ${post.publishedDate}`;
-
-    link.append(title, description, publishedTime);
-    article.appendChild(link);
-    container.appendChild(article);
-    return container;
-  };
-
   const setupHomeCategoryTabs = () => {
     homePostsObserver?.disconnect();
     homePostsObserver = null;
 
     const root = document.querySelector<HTMLElement>("#home-categories");
     const postsRoot = document.querySelector<HTMLElement>("#home-posts");
-    if (!root || !postsRoot) return;
+    const template = document.querySelector<HTMLTemplateElement>(
+      "[data-home-post-template]"
+    );
+    if (!root || !postsRoot || !template) return;
+
+    const createHomePost = (post: HomePostSummary) => {
+      const container = template.content.firstElementChild!.cloneNode(
+        true
+      ) as HTMLElement;
+      container.dataset.homePost = "";
+      container.dataset.homeCategories = post.categories.join(" ");
+      container.dataset.homePath = post.path;
+
+      const link = container.querySelector("a")!;
+      link.href = post.path;
+      container.querySelector("h3")!.textContent = post.title;
+      container.querySelector("p")!.textContent = post.description;
+
+      const publishedTime = container.querySelector("time")!;
+      publishedTime.dateTime = post.pubDatetime;
+      publishedTime.textContent = `发布于 ${post.publishedDate}`;
+
+      return container;
+    };
 
     const tabs = root.querySelectorAll<HTMLButtonElement>("[data-home-filter]");
     const postsGrid = postsRoot.querySelector<HTMLElement>(

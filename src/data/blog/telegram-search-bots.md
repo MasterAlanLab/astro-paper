@@ -35,7 +35,7 @@ Telegram 搜索机器人最常见的用途是：
 
 1. 点击下方的机器人入口链接，比如 [极搜bot](https://t.me/jisou2?start=a_597766375)。
 2. 进入机器人对话界面，点击“开始”或发送 `/start`。
-3. 在聊天框中输入你想要搜索的关键词。比如 ![alt text](未命名.png)
+3. 在聊天框中输入你想要搜索的关键词。比如 ![Telegram 搜索机器人使用示例](telegram-search-bot-example.png)
 
    再比如
 

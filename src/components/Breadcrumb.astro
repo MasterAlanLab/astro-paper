@@ -4,6 +4,7 @@ const currentUrlPath = Astro.url.pathname.replace(/\/+$/, "");
 const breadcrumbLabelMap: Record<string, string> = {
   posts: "文章",
   tags: "标签",
+  categories: "分类",
   about: "关于",
   archives: "归档",
   search: "搜索",
@@ -16,12 +17,19 @@ const breadcrumbList = currentUrlPath.split("/").slice(1);
 // if breadcrumb is Home > Posts > 1 <etc>
 // replace Posts with Posts (page number)
 if (breadcrumbList[0] === "posts") {
-  breadcrumbList.splice(0, 2, `文章（第 ${breadcrumbList[1] || 1} 页）`);
+  breadcrumbList.splice(
+    0,
+    2,
+    breadcrumbList[1] ? `文章（第 ${breadcrumbList[1]} 页）` : "文章"
+  );
 }
 
-// if breadcrumb is Home > Tags > [tag] > [page] <etc>
-// replace [tag] > [page] with [tag] (page number)
-if (breadcrumbList[0] === "tags" && !isNaN(Number(breadcrumbList[2]))) {
+// if breadcrumb is Home > Tags/Categories > [name] > [page] <etc>
+// replace [name] > [page] with [name] (page number)
+if (
+  (breadcrumbList[0] === "tags" || breadcrumbList[0] === "categories") &&
+  !isNaN(Number(breadcrumbList[2]))
+) {
   breadcrumbList.splice(
     1,
     3,

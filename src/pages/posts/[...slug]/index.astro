@@ -3,26 +3,22 @@ import { type CollectionEntry, getCollection } from "astro:content";
 import PostDetails from "@/layouts/PostDetails.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
 import { getPath } from "@/utils/getPath";
-import postFilter from "@/utils/postFilter";
 
 type Props = {
   post: CollectionEntry<"blog">;
+  sortedPosts: CollectionEntry<"blog">[];
 };
 
 export async function getStaticPaths() {
-  const posts = await getCollection("blog", postFilter);
-  const postResult = posts.map(post => ({
-    params: { slug: getPath(post.id, post.filePath, false) },
-    props: { post },
-  }));
+  const sortedPosts = getSortedPosts(await getCollection("blog"));
 
-  return postResult;
+  return sortedPosts.map(post => ({
+    params: { slug: getPath(post.id, post.filePath, false) },
+    props: { post, sortedPosts },
+  }));
 }
 
-const { post } = Astro.props;
-
-const posts = await getCollection("blog");
-const sortedPosts = getSortedPosts(posts);
+const { post, sortedPosts } = Astro.props;
 ---
 
 <PostDetails post={post} posts={sortedPosts} />

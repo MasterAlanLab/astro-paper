@@ -2,6 +2,7 @@ import type { CollectionEntry } from "astro:content";
 import { SITE } from "@/config";
 import { getPath } from "./getPath";
 import { slugifyStr } from "./slugify";
+import groupPostsBy from "./groupPostsBy";
 
 type Post = CollectionEntry<"blog">;
 
@@ -23,30 +24,14 @@ export interface HomePostSummary {
 export const getHomePostCategories = (post: Post) =>
   Array.from(new Set(post.data.categories.map(slugifyStr)));
 
-export const getHomeCategories = (posts: Post[]): HomeCategory[] => {
-  const categories = new Map<string, HomeCategory>();
-
-  for (const post of posts) {
-    const postCategories = new Set<string>();
-
-    for (const label of post.data.categories) {
-      const filter = slugifyStr(label);
-      if (postCategories.has(filter)) continue;
-
-      postCategories.add(filter);
-      const category = categories.get(filter);
-      if (category) {
-        category.count += 1;
-      } else {
-        categories.set(filter, { label, filter, count: 1 });
-      }
-    }
-  }
-
-  return Array.from(categories.values()).sort((a, b) =>
-    a.label.localeCompare(b.label, "zh-CN")
-  );
-};
+export const getHomeCategories = (posts: Post[]): HomeCategory[] =>
+  groupPostsBy(posts, post => post.data.categories)
+    .map(({ slug, name, posts }) => ({
+      label: name,
+      filter: slug,
+      count: posts.length,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label, "zh-CN"));
 
 export const formatPublishedDate = (post: Post) =>
   new Intl.DateTimeFormat("zh-CN", {

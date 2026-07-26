@@ -1,8 +1,9 @@
 import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
+import { join } from "node:path";
 import subsetFont from "subset-font";
 
-type FontData = {
+export type FontData = {
   name: string;
   data: ArrayBuffer;
   weight: number;
@@ -11,25 +12,34 @@ type FontData = {
 
 const require = createRequire(import.meta.url);
 
+// Noto Sans SC woff files are vendored in src/assets/fonts to avoid
+// installing the full 20 MB @openfonts package for two weights.
+const notoFontFile = (weight: number) =>
+  join(
+    process.cwd(),
+    "src/assets/fonts",
+    `noto-sans-sc-chinese-simplified-${weight}.woff`
+  );
+
 const fontConfigs = [
   {
     name: "IBM Plex Mono",
-    file: "@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff",
+    file: require.resolve("@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff"),
     weight: 400,
   },
   {
     name: "IBM Plex Mono",
-    file: "@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-700-normal.woff",
+    file: require.resolve("@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-700-normal.woff"),
     weight: 700,
   },
   {
     name: "Noto Sans SC",
-    file: "@openfonts/noto-sans-sc_chinese-simplified/files/noto-sans-sc-chinese-simplified-400.woff",
+    file: notoFontFile(400),
     weight: 400,
   },
   {
     name: "Noto Sans SC",
-    file: "@openfonts/noto-sans-sc_chinese-simplified/files/noto-sans-sc-chinese-simplified-700.woff",
+    file: notoFontFile(700),
     weight: 700,
   },
 ] as const;
@@ -51,7 +61,7 @@ const loadBaseFontData = () =>
   Promise.all(
     fontConfigs.map(async ({ name, file, weight }) => ({
       name,
-      data: await readFile(require.resolve(file)),
+      data: await readFile(file),
       weight,
       style: "normal" as const,
     }))
@@ -59,8 +69,8 @@ const loadBaseFontData = () =>
 
 const getUniqueCharacters = (text: string) => [...new Set(text)].join("");
 
-export const loadOgFonts = (text: string, cacheKey = text) => {
-  const cachedFontData = fontDataCache.get(cacheKey);
+export const loadOgFonts = (text: string) => {
+  const cachedFontData = fontDataCache.get(text);
   if (cachedFontData) return cachedFontData;
 
   baseFontDataPromise ??= loadBaseFontData();
@@ -79,6 +89,6 @@ export const loadOgFonts = (text: string, cacheKey = text) => {
     )
   );
 
-  fontDataCache.set(cacheKey, fontDataPromise);
+  fontDataCache.set(text, fontDataPromise);
   return fontDataPromise;
 };

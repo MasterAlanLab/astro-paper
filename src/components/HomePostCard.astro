@@ -1,19 +1,14 @@
 ---
-import type { CollectionEntry } from "astro:content";
-import { getPath } from "@/utils/getPath";
-import { formatPublishedDate } from "@/utils/homePosts";
+import type { HomePostSummary } from "@/utils/homePosts";
 
-type Props = CollectionEntry<"blog">;
+type Props = HomePostSummary;
 
-const { id, data, filePath } = Astro.props;
-const { title, description, pubDatetime } = data;
-const postPath = getPath(id, filePath);
-const publishedDate = formatPublishedDate(Astro.props);
+const { path, title, description, pubDatetime, publishedDate } = Astro.props;
 ---
 
 <article>
   <a
-    href={postPath}
+    href={path}
     class="group flex min-h-[11rem] flex-col rounded-lg border border-border bg-background p-5 transition hover:-translate-y-0.5 hover:border-foreground/35 hover:bg-muted/20"
   >
     <h3 class="line-clamp-2 text-base leading-7 font-semibold text-foreground">
@@ -26,7 +21,7 @@ const publishedDate = formatPublishedDate(Astro.props);
 
     <time
       class="mt-auto pt-5 text-xs font-medium text-foreground/42"
-      datetime={pubDatetime.toISOString()}
+      datetime={pubDatetime}
     >
       发布于 {publishedDate}
     </time>

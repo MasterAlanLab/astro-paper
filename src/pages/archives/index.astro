@@ -6,7 +6,7 @@ import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import Card from "@/components/Card.astro";
 import getPostsByGroupCondition from "@/utils/getPostsByGroupCondition";
-import postFilter from "@/utils/postFilter";
+import getSortedPosts from "@/utils/getSortedPosts";
 import { SITE } from "@/config";
 
 // Redirect to 404 page if `showArchives` config is false
@@ -14,7 +14,7 @@ if (!SITE.showArchives) {
   return Astro.redirect("/404");
 }
 
-const posts = await getCollection("blog", postFilter);
+const posts = getSortedPosts(await getCollection("blog"));
 
 const months = [
   "1月",
@@ -60,19 +60,9 @@ const months = [
                     <sup class="text-xs">{monthGroup.length}</sup>
                   </div>
                   <ul>
-                    {monthGroup
-                      .sort(
-                        (a, b) =>
-                          Math.floor(
-                            new Date(b.data.pubDatetime).getTime() / 1000
-                          ) -
-                          Math.floor(
-                            new Date(a.data.pubDatetime).getTime() / 1000
-                          )
-                      )
-                      .map(data => (
-                        <Card {...data} />
-                      ))}
+                    {monthGroup.map(data => (
+                      <Card {...data} />
+                    ))}
                   </ul>
                 </div>
               ))}

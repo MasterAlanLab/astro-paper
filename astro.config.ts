@@ -26,7 +26,10 @@ export default defineConfig({
     }),
   ],
   markdown: {
-    remarkPlugins: [remarkToc, [remarkCollapse, { test: "Table of contents" }]],
+    remarkPlugins: [
+      [remarkToc, { heading: "目录" }],
+      [remarkCollapse, { test: "目录" }],
+    ],
     shikiConfig: {
       // For more themes, visit https://shiki.style/themes
       themes: { light: "min-light", dark: "night-owl" },
@@ -53,6 +56,7 @@ export default defineConfig({
   image: {
     responsiveStyles: true,
     layout: "constrained",
+    breakpoints: [640, 960, 1280],
   },
   env: {
     schema: {

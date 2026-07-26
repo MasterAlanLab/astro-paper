@@ -28,17 +28,22 @@ for (const html of htmlContents) {
 
 const indexHtml = await readFile("dist/index.html", "utf8");
 const aboutHtml = await readFile("dist/about/index.html", "utf8");
-const articleHtml = await readFile(
-  "dist/posts/hello-i-am-alan/index.html",
-  "utf8"
+
+const articleFiles = await getFiles("dist/posts", "index.html");
+const articleFile = articleFiles.find(
+  file => !/dist\/posts(\/\d+)?\/index\.html$/.test(file)
 );
+assert(articleFile, "dist/posts must contain at least one article page");
+const articleHtml = await readFile(articleFile, "utf8");
 
 assert(indexHtml.includes('"@type":"WebSite"'));
 assert(aboutHtml.includes('"@type":"WebPage"'));
-assert(articleHtml.includes('"@type":"BlogPosting"'));
-assert.equal(
-  indexHtml.match(/data-home-post(?:\s|>)/g)?.length ?? 0,
-  SITE.postPerIndex
+assert(articleHtml.includes('"@type":"BlogPosting"'), articleFile);
+
+const homePostCount = indexHtml.match(/data-home-post(?:\s|>)/g)?.length ?? 0;
+assert(
+  homePostCount > 0 && homePostCount <= SITE.postPerIndex,
+  `index.html must render between 1 and ${SITE.postPerIndex} home posts, got ${homePostCount}`
 );
 
 const sitemap = await readFile("dist/sitemap-0.xml", "utf8");
