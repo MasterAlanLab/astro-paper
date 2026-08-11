@@ -5,8 +5,7 @@ title: 无需kyc虚拟信用卡平台整理与优缺点对比（持续更新）
 featured: false
 draft: false
 categories:
-  - 虚拟信用卡
-  - 产品评测
+  - 工具与资源
 tags:
   - 虚拟卡
   - 信用卡

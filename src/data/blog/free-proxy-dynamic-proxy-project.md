@@ -5,8 +5,7 @@ title: free-proxy：一个动态代理项目的介绍
 featured: false
 draft: false
 categories:
-  - 项目
-  - 开发
+  - 网络与服务器
 tags:
   - free-proxy
   - 代理

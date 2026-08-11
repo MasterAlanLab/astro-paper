@@ -6,8 +6,7 @@ title: JTTI 周年庆 日本 35$/年 中国优化线路 VPS 三网回程 AS4837 
 featured: false
 draft: false
 categories:
-  - VPS
-  - 产品评测
+  - 网络与服务器
 tags:
   - VPS
   - 日本

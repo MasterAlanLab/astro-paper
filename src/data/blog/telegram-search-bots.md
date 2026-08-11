@@ -5,7 +5,7 @@ title: Telegram 搜索机器人合集（持续更新）
 featured: false
 draft: false
 categories:
-  - 工具
+  - 工具与资源
 tags:
   - Telegram
   - 机器人

@@ -5,8 +5,7 @@ title: Paradis 部署教程：使用 Docker Compose 搭建 AI 订阅代充平台
 featured: false
 draft: false
 categories:
-  - AI
-  - 教程
+  - AI 技术
 tags:
   - Paradis
   - Docker

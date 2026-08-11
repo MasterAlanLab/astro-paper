@@ -6,8 +6,7 @@ title: ai.corouter.cc 合伙人使用指南
 featured: false
 draft: false
 categories:
-  - 教程
-  - CoRouter
+  - 工具与资源
 tags:
   - CoRouter
   - 教程

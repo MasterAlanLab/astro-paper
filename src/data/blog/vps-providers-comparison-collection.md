@@ -5,8 +5,7 @@ title: VPS 商家合集与优缺点对比（持续更新）
 featured: false
 draft: false
 categories:
-  - VPS
-  - 产品评测
+  - 网络与服务器
 tags:
   - VPS
   - 服务器

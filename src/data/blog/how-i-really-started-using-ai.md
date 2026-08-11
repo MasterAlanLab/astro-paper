@@ -5,8 +5,7 @@ title: 我是如何把 AI 真正用起来的
 featured: true
 draft: false
 categories:
-  - AI
-  - 教程
+  - AI 技术
 tags:
   - AI
   - Agent
