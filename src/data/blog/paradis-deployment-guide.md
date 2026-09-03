@@ -3,7 +3,7 @@ author: 艾伦
 pubDatetime: 2026-08-11T22:00:00+08:00
 title: Paradis 部署教程：使用 Docker Compose 搭建 AI 订阅代充平台
 featured: false
-draft: false
+draft: true
 categories:
   - AI 技术
 tags:
