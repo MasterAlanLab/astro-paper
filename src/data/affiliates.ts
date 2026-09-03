@@ -15,19 +15,19 @@ export const AFFILIATES: AffiliateItem[] = [
     featured: true,
   },
   {
-    tag: "hosting",
-    title: "买 VPS 看这里",
+    tag: "shop",
+    title: "艾伦の小店",
     description:
-      "收集了各大 VPS/主机的评测与优惠信息，帮助你选择最适合的服务器。",
+      "自营店铺，提供一手货源，博主信誉保证，售后无忧。",
     href: "/posts/vps-providers-comparison-collection",
     featured: true,
   },
   {
-    tag: "vcc",
-    title: "无需 KYC 的虚拟信用卡平台",
+    tag: "ai",
+    title: "艾伦自营的 AI 订阅代付代充服务",
     description:
-      "整理各大虚拟信用卡平台的费用，帮助你选择最适合的虚拟信用卡平台。",
-    href: "/posts/virtual-card-platforms-collection",
+      "提供全网极具性价比的 AI 会员代付代充服务。",
+    href: "https://ai.corouter.cc",
     featured: true,
   },
 ];

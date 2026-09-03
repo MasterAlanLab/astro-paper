@@ -1,6 +1,7 @@
 ---
 author: 艾伦
 pubDatetime: 2026-07-29T12:00:00+08:00
+modDatetime: 2026-09-03T12:00:00+08:00
 title: free-proxy：一个动态代理项目的介绍
 featured: false
 draft: false
@@ -10,7 +11,7 @@ tags:
   - free-proxy
   - 代理
   - 开源项目
-description: 介绍一个名为 free-proxy 的动态代理项目，包含项目定位、使用场景与整体特点。
+description: 介绍一个名为 free-proxy 的动态代理项目，包含项目定位、使用场景与整体特点，并同步近期版本更新的新功能。
 ---
 
 大家好，我是艾伦，欢迎来到我的频道
@@ -52,6 +53,34 @@ VPNgate 是由日本国立筑波大学运营的一项学术实验项目，由全
 
 而使用 openVPN 建立链接，并暴露出 socks 协议的接口就是我的 free-proxy 这个项目所要做的事情
 
+## 更新说明
+
+这篇文章发出来之后 free-proxy 又迭代了不少个版本，这里把几个比较重要的变化同步一下
+
+<div style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0; overflow: hidden; margin: 1.5rem 0; border-radius: 0.75rem;">
+  <iframe
+    src="https://www.youtube.com/embed/eTeM7bPE60Q"
+    title="轻松白嫖100+住宅IP！Free-Proxy更新 + v2rayN前置代理实操教程"
+    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
+    loading="lazy"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    allowfullscreen
+  ></iframe>
+</div>
+
+现在安装的时候，管理后台的路径、账号和密码都是随机生成的，不再有任何默认值，装完之后脚本会直接打印出来。如果之后忘记了，不需要重置密码也不需要重启服务，直接在服务器上执行 `free-proxy credentials` 就能把访问地址、路径、账号、密码重新打印一遍
+
+外网访问这块也做了区分。网页后台默认就允许外网访问，因为有登录加上一个随机密钥路径的双重保护；但代理端口默认只服务本机，如果想让外网也能用，必须先在后台的"策略"页面给代理设置一个用户名和密码，不设置的话外网访问开关是打不开的，这么做是为了避免变成一个谁都能用的"开放代理"
+
+以前升级 free-proxy 都要重新 ssh 上去跑一遍那条安装命令，现在网页后台的"系统"面板里加了一个"版本更新"，有新版本的时候标签页上会出现一个小圆点，点进去能看到这次更新具体改了什么(新功能、问题修复、性能优化分好类)，点一下"更新到 vX.Y.Z"就会自动下载、校验、替换程序并重启服务，不用再手动操作了
+
+节点选择上加了智能路由、速度优先等几种策略，能自动帮你挑一个更合适的出口节点；节点列表现在也支持中文搜索，还会显示节点所在国家的国旗和 IP 归属的机房/组织信息，方便肉眼分辨住宅 IP 和机房 IP
+
+如果你的服务器上还跑着 3x-ui 之类的面板，以前是有可能因为大家都用 `tun0` 这个网卡名和 `100` 这个路由表号，抢占之后报出 "TUN device is unavailable" 的错误。现在 free-proxy 换成了自己独立的命名空间(网卡叫 `fpx0`，路由表号是 `9527`)，分配前还会检查是否已被占用，不会再和其它隧道类工具起冲突
+
+另外后台的维护数据和日志也做了限制，不会无限增长
+
 ## 部署和使用
 
 这个项目在部署之前有一个前提要求
@@ -80,11 +109,13 @@ bash <(curl -Ls https://raw.githubusercontent.com/masteralanlab/free-proxy/main/
 
 我们就可以进后台了
 
-默认情况下 socks 接口是没有开启外网访问的，如果有需要，那么可以在后台设置里打开
+默认情况下 socks 接口是没有开启外网访问的，如果有需要，需要先在后台给代理设置好用户名和密码，然后才能把外网访问开关打开，不设置密码是打不开的
 
 这个一般就看自己情况了，我因为自己的 singbox 和 free-proxy 就在同一台机器上
 
 所以我就没有开启外网访问，我直接 127.0.0.1 就使用了
+
+如果哪天登录后台的路径、账号或者密码忘了，直接在服务器上执行 `sudo free-proxy credentials`，就能把访问地址、路径、账号、密码重新打印出来。
 
 ## 资源推荐
 
