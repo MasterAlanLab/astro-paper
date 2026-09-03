@@ -24,7 +24,7 @@ export const AFFILIATES: AffiliateItem[] = [
   },
   {
     tag: "ai",
-    title: "艾伦自营的 AI 订阅代付代充服务",
+    title: "艾伦のAI会员代付",
     description:
       "提供全网极具性价比的 AI 会员代付代充服务。",
     href: "https://ai.corouter.cc",
