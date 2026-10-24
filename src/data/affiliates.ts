@@ -19,7 +19,7 @@ export const AFFILIATES: AffiliateItem[] = [
     title: "艾伦の小店",
     description:
       "自营店铺，提供一手货源，博主信誉保证，售后无忧。",
-    href: "/posts/vps-providers-comparison-collection",
+    href: "https://shop.corouter.cc",
     featured: true,
   },
   {
